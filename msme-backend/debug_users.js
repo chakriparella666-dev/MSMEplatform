@@ -5,7 +5,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 async function debug() {
   try {
-    await mongoose.connect(process.env.MONGO_URI);
+    await mongoose.connect(process.env.MONGO_URL);
     console.log('Connected to MongoDB');
     
     const users = await mongoose.connection.db.collection('users').find().toArray();

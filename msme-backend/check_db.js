@@ -4,7 +4,7 @@ const User = require('./models/User');
 require('dotenv').config();
 
 async function check() {
-    await mongoose.connect(process.env.MONGO_URI || 'mongodb+srv://chakriparella666:T8f8mIdcbe3OQyvF@cluster0.4ifc8lf.mongodb.net/msme_db?retryWrites=true&w=majority&appName=Cluster0');
+    await mongoose.connect(process.env.MONGO_URL || 'mongodb+srv://chakriparella666:T8f8mIdcbe3OQyvF@cluster0.4ifc8lf.mongodb.net/msme_db?retryWrites=true&w=majority&appName=Cluster0');
     
     // Find a seller
     const user = await User.findOne({ role: 'seller' });

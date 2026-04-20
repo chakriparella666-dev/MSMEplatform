@@ -5,7 +5,7 @@ require('dotenv').config();
 
 const migrate = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/msme');
+    await mongoose.connect(process.env.MONGO_URL || 'mongodb://localhost:27017/msme');
     console.log('Connected to MongoDB');
 
     // 1. Fix SKUs and Prices

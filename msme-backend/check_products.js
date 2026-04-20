@@ -3,7 +3,7 @@ require('dotenv').config();
 
 async function check() {
   try {
-    await mongoose.connect(process.env.MONGO_URI);
+    await mongoose.connect(process.env.MONGO_URL);
     const products = await mongoose.connection.db.collection('products').find().toArray();
     console.log('--- PRODUCTS IN msme_db ---');
     products.forEach(p => console.log(`Name: ${p.name}, Seller: ${p.seller}`));

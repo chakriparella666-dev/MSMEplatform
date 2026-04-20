@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 
 const connectDB = async (retryCount = 10) => {
   try {
-    const conn = await mongoose.connect(process.env.MONGO_URI, {
+    const conn = await mongoose.connect(process.env.MONGO_URL, {
       serverSelectionTimeoutMS: 10000,
       socketTimeoutMS: 60000,
       tls: true,

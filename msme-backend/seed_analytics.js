@@ -8,7 +8,7 @@ dotenv.config();
 
 const seedAnalytics = async () => {
     try {
-        await mongoose.connect(process.env.MONGO_URI);
+        await mongoose.connect(process.env.MONGO_URL);
         console.log('MongoDB Connected for seeding...');
 
         const sellerId = '69e1376aebc83739c7ebb268';
