@@ -70,7 +70,7 @@ export default function Login() {
     page: {
       minHeight: '100vh', display: 'flex', alignItems: 'center',
       justifyContent: 'center', background: 'var(--bg-page)',
-      padding: '20px', fontFamily: "'DM Sans', sans-serif",
+      padding: '20px', fontFamily: "'Sora', sans-serif",
     },
     wrapper: {
       display: 'flex', width: '100%', maxWidth: '1060px',
@@ -161,7 +161,7 @@ export default function Login() {
     successBanner: {
       background:'#E8F5E9', border:'1px solid #A5D6A7', borderRadius:12,
       padding:'11px 14px', fontSize:13, color:'#2E7D32', marginBottom:18,
-      animation:'fadeIn 0.4s residue', display:'flex', alignItems:'center', gap:8,
+      animation:'fadeIn 0.4s ease', display:'flex', alignItems:'center', gap:8,
     },
     errorBanner: {
       background:'#FFEBEE', border:'1px solid #FFCDD2', borderRadius:12,

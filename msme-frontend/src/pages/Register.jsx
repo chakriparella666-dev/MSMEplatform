@@ -48,7 +48,7 @@ export default function Register() {
   const handleKeyDown = (e) => { if (e.key === 'Enter') handleSubmit() }
 
   const S = {
-    page: { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-page)', padding: '20px', fontFamily: "'DM Sans', sans-serif" },
+    page: { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-page)', padding: '20px', fontFamily: "'Sora', sans-serif" },
     wrapper: { display: 'flex', width: '100%', maxWidth: '1060px', minHeight: '680px', borderRadius: '28px', overflow: 'hidden', boxShadow: 'var(--shadow-card)', background: '#fff' },
     left: { flex: '1.1', background: 'linear-gradient(145deg,#EEF2FF 0%,#E3E8FA 50%,#EDE9F8 100%)', padding: '48px 40px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', position: 'relative', overflow: 'hidden' },
     blob1: { position: 'absolute', width: 260, height: 260, borderRadius: '50%', background: 'radial-gradient(circle,rgba(99,102,241,0.18),transparent 70%)', top: -60, right: -60 },
@@ -103,7 +103,7 @@ export default function Register() {
             <div style={S.fieldWrap}>
               <label style={S.label}>Full Name</label>
               <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                <input placeholder="Enter your full name" value={name} onChange={e => setName(e.target.value)} style={S.input} />
+                <input placeholder="Enter your name" value={name} onChange={e => setName(e.target.value)} style={S.input} />
               </div>
               {errors.name && <div style={{ color: '#F44336', fontSize: '11px', marginTop: '4px' }}>{errors.name}</div>}
             </div>

@@ -1,108 +1,113 @@
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { FaShoppingBag, FaStore, FaUserShield, FaArrowRight } from 'react-icons/fa'
 
 export default function Dashboard() {
-  const { user } = useAuth()
+  const { user, loading } = useAuth()
   const navigate = useNavigate()
+
+  useEffect(() => {
+    if (!loading && !user) navigate('/login')
+  }, [user, loading, navigate])
+
+  if (loading || !user) return <div style={{ padding: '40px', textAlign: 'center' }}>Loading session...</div>
 
   const roles = [
     {
-      id: 'seller',
-      title: 'Seller',
-      desc: 'Sell your products, manage inventory and track orders.',
-
-      color: '#3D5AFE',
-      gradient: 'linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%)'
-    },
-    {
       id: 'buyer',
       title: 'Buyer',
-      desc: 'Discover MSME products, compare prices and buy directly.',
-
-      color: '#ffae00ff',
-      gradient: 'linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%)'
+      desc: 'Shop from local MSMEs. Clean, fast, and secure marketplace experience.',
+      icon: <FaShoppingBag size={24} />,
+      color: '#2563eb',
+      path: '/buyer'
+    },
+    {
+      id: 'seller',
+      title: 'Seller',
+      desc: 'Grow your business. Manage products, stock, and track your orders.',
+      icon: <FaStore size={24} />,
+      color: '#7c3aed',
+      path: '/seller'
     },
     {
       id: 'admin',
-      title: 'Admin',
-      desc: 'Manage users, verify MSMEs and monitor platform health.',
-
-      color: '#1A237E',
-      gradient: 'linear-gradient(135deg, #F5F7FF 0%, #E8EDFB 100%)'
+      title: 'Administrator',
+      desc: 'Oversee platform operations, verify sellers, and manage users.',
+      icon: <FaUserShield size={24} />,
+      color: '#334155',
+      path: '/admin'
     }
   ]
 
-  const S = {
-    page: { minHeight: '100vh', background: '#F5F7FF', padding: '60px 20px', fontFamily: "'DM Sans', sans-serif" },
-    container: { maxWidth: '1000px', margin: '0 auto', textAlign: 'center' },
-    header: { marginBottom: '50px' },
-    title: { fontFamily: "'Sora', sans-serif", fontSize: '36px', fontWeight: 800, color: '#1A1F5E', marginBottom: '12px' },
-    subtitle: { fontSize: '16px', color: '#5C6484', maxWidth: '600px', margin: '0 auto' },
-    grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginTop: '40px' },
-    card: {
-      background: '#fff',
-      borderRadius: '24px',
-      padding: '40px',
-      textAlign: 'left',
-      cursor: 'pointer',
-      transition: 'all 0.3s ease',
-      boxShadow: '0 10px 30px rgba(61, 90, 254, 0.05)',
-      border: '1.5px solid #E4E8F7',
-      position: 'relative',
-      overflow: 'hidden'
-    },
-    iconBox: { fontSize: '40px', marginBottom: '20px' },
-    roleTitle: { fontSize: '22px', fontWeight: 700, color: '#1A1F5E', marginBottom: '10px' },
-    roleDesc: { fontSize: '14px', color: '#8B93B8', lineHeight: '1.6', marginBottom: '24px' },
-    btn: {
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: '8px',
-      padding: '12px 24px',
-      borderRadius: '12px',
-      fontWeight: 600,
-      fontSize: '14px',
-      transition: 'all 0.2s ease',
-      border: 'none',
-      cursor: 'pointer'
-    }
+  const handleRoleSelection = (rolePath) => {
+    navigate(rolePath)
   }
 
   return (
-    <div style={S.page}>
-      <div style={S.container}>
-        <header style={S.header}>
-          <h1 style={S.title}>Welcome back, {user?.name || 'Partner'}!</h1>
-          <p style={S.subtitle}>Select your workspace to get started with the MSME Platform.</p>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 20px' }}>
+      <div style={{ maxWidth: '1100px', width: '100%' }}>
+        <header style={{ textAlign: 'center', marginBottom: '60px' }} className="animate-fade-in">
+          <h1 style={{ fontSize: '3.5rem', fontWeight: 800, color: '#0f172a', marginBottom: '16px', letterSpacing: '-0.025em' }}>
+            Welcome back, <span style={{ color: 'var(--primary)' }}>{user?.name?.split(' ')[0] || 'Partner'}</span>!
+          </h1>
+          <p style={{ fontSize: '1.25rem', color: 'var(--text-muted)', maxWidth: '600px', margin: '0 auto' }}>
+            Choose your gateway to the MSME ecosystem. Each workspace is tailored to your specific goals.
+          </p>
         </header>
 
-        <div style={S.grid}>
-          {roles.map((role) => (
-            <div
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '32px' }}>
+          {roles.map((role, idx) => (
+            <div 
               key={role.id}
-              className="role-card"
-              style={S.card}
-              onClick={() => navigate(`/${role.id}/dashboard`)}
+              onClick={() => handleRoleSelection(role.path)}
+              className="glass-card animate-fade-in"
+              style={{ 
+                padding: '40px', 
+                cursor: 'pointer', 
+                transition: 'all 0.3s ease',
+                animationDelay: `${idx * 0.1}s`,
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100%'
+              }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-8px)'
-                e.currentTarget.style.boxShadow = '0 20px 40px rgba(61, 90, 254, 0.1)'
-                e.currentTarget.style.borderColor = role.color
+                e.currentTarget.style.transform = 'translateY(-10px)';
+                e.currentTarget.style.borderColor = 'var(--primary)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = '0 10px 30px rgba(61, 90, 254, 0.05)'
-                e.currentTarget.style.borderColor = '#E4E8F7'
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.4)';
               }}
             >
-              <div style={S.iconBox}>{role.icon}</div>
-              <h3 style={S.roleTitle}>{role.title}</h3>
-              <p style={S.roleDesc}>{role.desc}</p>
-              <button style={{ ...S.btn, background: role.color, color: '#fff' }}>
-                Enter Workspace →
-              </button>
+              <div style={{ 
+                width: '64px', 
+                height: '64px', 
+                borderRadius: '16px', 
+                backgroundColor: role.color, 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                color: 'white', 
+                marginBottom: '24px',
+                boxShadow: `0 8px 16px -4px ${role.color}44`
+              }}>
+                {role.icon}
+              </div>
+              <h3 style={{ fontSize: '1.5rem', fontBold: 700, color: '#0f172a', marginBottom: '12px' }}>{role.title}</h3>
+              <p style={{ color: 'var(--text-muted)', marginBottom: '32px', lineHeight: '1.6', flexGrow: 1 }}>
+                {role.desc}
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', color: 'var(--primary)', fontWeight: 600 }}>
+                Enter Workspace <FaArrowRight style={{ marginLeft: '8px' }} />
+              </div>
             </div>
           ))}
         </div>
+
+        <footer style={{ marginTop: '80px', textAlign: 'center', color: '#94a3b8', fontSize: '0.875rem' }}>
+          &copy; 2026 MSME Platform Aggregator. All rights reserved.
+        </footer>
       </div>
     </div>
   )

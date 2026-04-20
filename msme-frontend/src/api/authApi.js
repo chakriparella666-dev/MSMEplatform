@@ -4,12 +4,30 @@ import axios from 'axios'
 const API = axios.create({
   baseURL: '/api/auth',
   withCredentials: true,
+  timeout: 10000, // 10 seconds
 })
 
-export const loginUser     = (data) => API.post('/login', data).then(r => r.data)
-export const registerUser  = (data) => API.post('/register', data).then(r => r.data)
-export const getMe         = ()     => API.get('/me').then(r => r.data)
-export const updateProfile = (data) => API.put('/update-profile', data).then(r => r.data)
-export const logoutUser    = ()     => API.post('/logout').then(r => r.data)
+// Add token to headers if available
+API.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+const saveToken = (data) => {
+  if (data.token) localStorage.setItem('token', data.token);
+  return data;
+};
+
+export const loginUser     = (data) => API.post('/login', data).then(r => saveToken(r.data))
+export const registerUser  = (data) => API.post('/register', data).then(r => saveToken(r.data))
+export const getMe         = ()     => API.get('/me').then(r => saveToken(r.data))
+export const updateProfile = (data) => API.put('/update-profile', data).then(r => saveToken(r.data))
+export const logoutUser    = ()     => {
+  localStorage.removeItem('token');
+  return API.post('/logout').then(r => r.data);
+}
 export const pingAuth      = ()     => API.get('/ping').then(r => r.data)
 export const googleAuthURL = ()     => `/api/auth/google`

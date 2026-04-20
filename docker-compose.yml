@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+
+  backend:
+    build: ./msme-backend
+    ports:
+      - "5000:5000"
+    environment:
+      MONGO_URL: ${MONGO_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      BACKEND_URL: ${BACKEND_URL}
+      FRONTEND_URL: ${FRONTEND_URL}
+    restart: always
+
+
+  frontend:
+    build:
+      context: ./msme-frontend
+      args:
+        REACT_APP_API_URL: http://localhost:5000
+    ports:
+      - "3001:80"
+    depends_on:
+      - backend
+    restart: always

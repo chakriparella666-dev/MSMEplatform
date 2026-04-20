@@ -1,35 +1,93 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
-const productSchema = new mongoose.Schema(
-  {
-    name: { type: String, required: true },
-    price: { type: Number, required: true },
-    category: { type: String, required: true },
-    description: { type: String },
-    stock: { type: Number, default: 0 },
-    sizes: { type: String },
-    sizeStock: {
-      S:  { type: Number, default: 0 },
-      M:  { type: Number, default: 0 },
-      L:  { type: Number, default: 0 },
-      XL: { type: Number, default: 0 }
-    },
-    colors: { type: String },
-    images: [{ type: String }],
+const ProductSchema = new mongoose.Schema({
+  seller: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
   },
-  { timestamps: true }
-);
+  name: {
+    type: String,
+    required: [true, 'Please add a product name'],
+    trim: true
+  },
+  description: {
+    type: String,
+    required: [true, 'Please add a description']
+  },
+  price: {
+    type: Number,
+    required: [true, 'Please add a price']
+  },
+  images: [{
+    type: String,
+    required: [true, 'Please add at least one image URL']
+  }],
+  category: {
+    type: String,
+    required: [true, 'Please add a category']
+  },
+  sizes: [{
+    size: {
+      type: String,
+      required: true
+    },
+    stock: {
+      type: Number,
+      required: true,
+      default: 0
+    }
+  }],
+  totalStock: {
+    type: Number,
+    default: 0
+  },
+  district: { type: String, index: true },
+  state: { type: String, index: true },
+  sku: { type: String, unique: true, sparse: true },
+  isActive: { type: Boolean, default: true },
+  lowStockThreshold: { type: Number, default: 5 },
+  autoDelist: { type: Boolean, default: true },
+  rawMaterials: [{
+    name: String,
+    quantityPerUnit: Number,
+    stock: Number
+  }],
+  rating: {
 
-productSchema.pre("save", function(next) {
-  if (this.sizeStock) {
-    this.stock = (this.sizeStock.S || 0) + 
-                 (this.sizeStock.M || 0) + 
-                 (this.sizeStock.L || 0) + 
-                 (this.sizeStock.XL || 0);
+
+    type: Number,
+    default: 0
+  },
+  numReviews: {
+    type: Number,
+    default: 0
   }
+}, {
+  timestamps: true
+});
+
+// Calculate total stock and auto-delist if needed
+ProductSchema.pre('save', function(next) {
+  this.totalStock = this.sizes.reduce((acc, curr) => acc + curr.stock, 0);
+  
+  if (this.autoDelist && this.totalStock === 0) {
+    this.isActive = false;
+  }
+  
+  // Generate SKU if missing
+  if (!this.sku) {
+    this.sku = 'MSME-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+  }
+  
   next();
 });
 
-productSchema.index({ createdAt: -1 });
 
-module.exports = mongoose.model("Product", productSchema);
+// Indices for search and performance
+ProductSchema.index({ name: 'text', category: 'text', description: 'text' });
+ProductSchema.index({ category: 1 });
+ProductSchema.index({ seller: 1 });
+ProductSchema.index({ createdAt: -1 });
+
+module.exports = mongoose.model('Product', ProductSchema, 'products');

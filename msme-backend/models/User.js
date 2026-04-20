@@ -1,16 +1,36 @@
 const mongoose = require('mongoose')
-const bcrypt   = require('bcryptjs')
+const bcrypt = require('bcryptjs')
 
 const UserSchema = new mongoose.Schema({
-  name:       { type: String, required: true, trim: true },
-  email:      { type: String, required: true, unique: true, lowercase: true, index: true },
-  password:   { type: String, select: false },
-  googleId:   { type: String, index: true },
-  avatar:     { type: String },
+  name: { type: String, required: true, trim: true },
+  email: { type: String, required: true, unique: true, lowercase: true, index: true },
+  password: { type: String, select: false },
+  googleId: { type: String, index: true },
+  avatar: { type: String },
+  role: { type: String, enum: ['seller', 'buyer', 'admin'], default: 'buyer' },
+  
+  // Seller specific fields
   businessName: { type: String, trim: true },
-  role:       { type: String, enum: ['seller','buyer','admin','msme_owner'], default: 'buyer' },
+  panCardName: { type: String, trim: true },
+  district: { type: String, trim: true },
+  state: { type: String, trim: true },
+  isProfileComplete: { type: Boolean, default: false },
+
+  
   isVerified: { type: Boolean, default: false },
-  lastLogin:  { type: Date },
+  
+  // Buyer specific fields
+  wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
+  savedAddresses: [{
+    street: String,
+    city: String,
+    state: String,
+    pincode: String,
+    phone: String,
+    isDefault: { type: Boolean, default: false }
+  }],
+  
+  lastLogin: { type: Date },
   resetPasswordToken: String,
   resetPasswordExpire: Date,
 }, { timestamps: true })

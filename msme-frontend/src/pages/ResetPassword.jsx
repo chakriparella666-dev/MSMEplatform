@@ -26,7 +26,7 @@ export default function ResetPassword() {
   }
 
   const S = {
-    page: { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-page)', padding: '20px', fontFamily: "'DM Sans', sans-serif" },
+    page: { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-page)', padding: '20px', fontFamily: "'Sora', sans-serif" },
     wrapper: { width: '100%', maxWidth: '440px', background: '#fff', borderRadius: '28px', padding: '48px', boxShadow: 'var(--shadow-card)', textAlign: 'center' },
     title: { fontFamily: "'Sora',sans-serif", fontSize: '26px', fontWeight: 800, color: '#1A1F5E', marginBottom: '12px' },
     subtitle: { fontSize: '14px', color: '#5C6484', marginBottom: '32px' },

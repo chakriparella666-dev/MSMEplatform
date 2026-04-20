@@ -10,8 +10,8 @@ const sendToken = (user, statusCode, res) => {
   const token = signToken(user._id)
   res.cookie('token', token, {
     httpOnly: true,
-    secure:   process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
+    secure:   false, // Always false for local development
+    sameSite: 'lax',
     maxAge:   7 * 24 * 60 * 60 * 1000,
   })
   user.password = undefined
@@ -57,7 +57,7 @@ exports.googleCallback = (req, res) => {
 exports.getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id)
-    res.json({ success: true, user })
+    res.json({ success: true, user, token: signToken(user._id) })
   } catch (err) {
     res.status(500).json({ success: false, message: err.message })
   }
@@ -65,13 +65,25 @@ exports.getMe = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
   try {
-    const { businessName, name } = req.body
+    const { businessName, name, panCardName, role } = req.body
+    
+    // Check if business name is already taken by another user
+    if (businessName) {
+      const existing = await User.findOne({ 
+        businessName: { $regex: new RegExp(`^${businessName}$`, 'i') }, 
+        _id: { $ne: req.user.id } 
+      });
+      if (existing) {
+        return res.status(400).json({ success: false, message: 'This business name is already registered by another seller.' });
+      }
+    }
+
     const user = await User.findByIdAndUpdate(
       req.user.id,
-      { businessName, name },
+      { businessName, name, panCardName, role, isProfileComplete: true },
       { new: true, runValidators: true }
     )
-    res.json({ success: true, user })
+    res.json({ success: true, user, token: signToken(user._id) })
   } catch (err) {
     res.status(500).json({ success: false, message: err.message })
   }
