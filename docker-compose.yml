@@ -20,9 +20,9 @@ services:
     build:
       context: ./msme-frontend
       args:
-        REACT_APP_API_URL: http://localhost:5000
+        VITE_API_URL: http://localhost:5000/api
     ports:
-      - "3001:80"
+      - "3001:5173"
     depends_on:
       - backend
     restart: always
