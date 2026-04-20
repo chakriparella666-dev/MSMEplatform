@@ -4,7 +4,7 @@ const nodemailer = require('nodemailer')
 const User = require('../models/User')
 
 const signToken = (id) =>
-  jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE })
+  jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE || '7d' })
 
 const sendToken = (user, statusCode, res) => {
   const token = signToken(user._id)
