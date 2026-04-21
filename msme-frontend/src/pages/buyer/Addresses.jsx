@@ -31,8 +31,8 @@ export default function Addresses() {
 
   const fetchAddresses = async () => {
     try {
-      const { data } = await axios.get('/api/auth/me')
-      setAddresses(data.data?.savedAddresses || [])
+      const { data } = await axios.get('/api/auth/me', { withCredentials: true })
+      setAddresses(data.user?.savedAddresses || [])
     } catch (err) { console.error(err) }
   }
 

@@ -214,7 +214,13 @@ export default function BuyerNavbar({ onSearchChange, onCategoryChange, currentS
               <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600 }}>Welcome</div>
               <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-main)' }}>{user?.name ? user.name.split(' ')[0] : 'Account'}</div>
             </div>
-            <FaUserCircle size={28} color="#CBD5E1" />
+            <div style={{ width: '32px', height: '32px', borderRadius: '50%', overflow: 'hidden', background: '#f1f5f9', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {user?.avatar ? (
+                <img src={user.avatar} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                <FaUserCircle size={24} color="#94a3b8" />
+              )}
+            </div>
           </div>
 
           <div 
