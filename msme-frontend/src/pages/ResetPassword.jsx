@@ -15,7 +15,7 @@ export default function ResetPassword() {
     setLoading(true)
     setError('')
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL || 'http://14.195.7.178:5000/api'}/auth/reset-password/${token}`, { password })
+      await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/auth/reset-password/${token}`, { password })
       setSuccess(true)
       setTimeout(() => navigate('/login'), 2000)
     } catch (err) {

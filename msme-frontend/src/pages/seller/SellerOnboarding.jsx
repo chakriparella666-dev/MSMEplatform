@@ -34,7 +34,7 @@ export default function SellerOnboarding({ onComplete }) {
     e.preventDefault()
     setLoading(true)
     try {
-      const { data } = await axios.put(`${import.meta.env.VITE_API_URL || 'http://14.195.7.178:5000/api'}/auth/update-profile`, formData, {
+      const { data } = await axios.put('http://localhost:5000/api/auth/update-profile', formData, {
          withCredentials: true 
       })
       if (data.success) {

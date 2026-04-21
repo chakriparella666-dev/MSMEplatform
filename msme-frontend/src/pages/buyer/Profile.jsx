@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext'
 import { FaUserEdit, FaEnvelope, FaIdBadge, FaCalendarAlt } from 'react-icons/fa'
 
 export default function Profile() {
-  const { user } = useAuth()
+  const { user, setUser } = useAuth()
   const [profile, setProfile] = useState(user || {})
   const [isEditing, setIsEditing] = useState(false)
   const [newAvatar, setNewAvatar] = useState('')
@@ -23,11 +23,25 @@ export default function Profile() {
     } catch (err) { console.error(err) }
   }
 
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) return alert('Image size should be less than 2MB')
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setNewAvatar(reader.result)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
   const handleUpdateAvatar = async () => {
+    if (!newAvatar) return alert('Please select an image first')
     setUpdating(true)
     try {
       const { data } = await axios.put('/api/auth/update-profile', { avatar: newAvatar }, { withCredentials: true })
       setProfile(data.user)
+      setUser(data.user)
       setIsEditing(false)
       alert('Profile image updated successfully!')
     } catch (err) {
@@ -81,29 +95,46 @@ export default function Profile() {
 
           {isEditing && (
             <div style={{ padding: '24px 40px', background: '#f1f5f9', borderBottom: '1px solid #e2e8f0' }}>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#475569', marginBottom: '8px' }}>PROFILE IMAGE URL</label>
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <input 
-                  type="text" 
-                  value={newAvatar}
-                  onChange={(e) => setNewAvatar(e.target.value)}
-                  placeholder="Paste image URL here..."
-                  style={{ flex: 1, padding: '12px 16px', borderRadius: '8px', border: '1.5px solid #cbd5e1', outline: 'none' }}
-                />
-                <button 
-                  onClick={handleUpdateAvatar}
-                  disabled={updating}
-                  style={{ background: 'var(--primary)', color: 'white', border: 'none', padding: '0 24px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}
-                >
-                  {updating ? 'Saving...' : 'Save'}
-                </button>
-                <button 
-                  onClick={() => setIsEditing(false)}
-                  style={{ background: 'transparent', color: '#64748b', border: '1.5px solid #cbd5e1', padding: '0 20px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}
-                >
-                  Cancel
-                </button>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#475569', marginBottom: '12px' }}>UPLOAD NEW PROFILE IMAGE</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                <div style={{ flex: 1 }}>
+                  <input 
+                    type="file" 
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    style={{ 
+                      width: '100%', 
+                      padding: '10px', 
+                      background: 'white', 
+                      borderRadius: '8px', 
+                      border: '1.5px dashed #cbd5e1',
+                      fontSize: '0.85rem'
+                    }}
+                  />
+                  <p style={{ margin: '8px 0 0', fontSize: '0.7rem', color: '#64748b' }}>Recommended: Square image, max 2MB</p>
+                </div>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button 
+                    onClick={handleUpdateAvatar}
+                    disabled={updating}
+                    style={{ background: 'var(--primary)', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}
+                  >
+                    {updating ? 'Saving...' : 'Upload & Save'}
+                  </button>
+                  <button 
+                    onClick={() => setIsEditing(false)}
+                    style={{ background: 'transparent', color: '#64748b', border: '1.5px solid #cbd5e1', padding: '12px 20px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
+              {newAvatar && newAvatar.startsWith('data:image') && (
+                <div style={{ marginTop: '16px' }}>
+                  <p style={{ fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: '8px' }}>Preview:</p>
+                  <img src={newAvatar} alt="Preview" style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--primary)' }} />
+                </div>
+              )}
             </div>
           )}
 
