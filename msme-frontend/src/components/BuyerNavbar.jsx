@@ -14,7 +14,16 @@ export default function BuyerNavbar({ onSearchChange, onCategoryChange, currentS
   const [cart, setCart] = useState({ items: [] })
   const [isSidebarOpen, setSidebarOpen] = useState(false)
   const [categories, setCategories] = useState([])
-  const [district, setDistrict] = useState(user?.address?.city || '')
+  const [district, setDistrict] = useState(() => {
+    return localStorage.getItem('user_district') || user?.address?.city || ''
+  })
+
+  useEffect(() => {
+    if (district) {
+      localStorage.setItem('user_district', district);
+    }
+  }, [district])
+
   const [showLocationModal, setShowLocationModal] = useState(false)
   const [selectedStateForLoc, setSelectedStateForLoc] = useState('')
   const [gettingLocation, setGettingLocation] = useState(false)

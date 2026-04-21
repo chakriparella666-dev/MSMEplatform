@@ -261,7 +261,7 @@ export default function ProductDetail() {
               className="btn-outline"
               style={{ padding: '20px', borderRadius: '12px', fontSize: '1rem', width: '100%' }}
             >
-              Checkout Now
+              Buy Now
             </button>
           </div>
 

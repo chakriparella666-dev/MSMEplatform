@@ -16,7 +16,16 @@ exports.getProducts = async (req, res) => {
     let query = {};
 
     if (search.trim() !== '') {
-      query.name = { $regex: search.trim(), $options: 'i' };
+      // Find sellers whose businessName matches the search
+      const sellers = await User.find({
+        businessName: { $regex: search.trim(), $options: 'i' }
+      }).select('_id');
+      const sellerIds = sellers.map(s => s._id);
+
+      query.$or = [
+        { name: { $regex: search.trim(), $options: 'i' } },
+        { seller: { $in: sellerIds } }
+      ];
     }
 
     if (category !== 'All') {
