@@ -297,15 +297,15 @@ function SchemesTab() {
   const [districtFilter, setDistrictFilter] = useState('All India')
   const [categoryFilter, setCategoryFilter] = useState('All Categories')
   const [allStates, setAllStates] = useState(['All India'])
+  const [successScheme, setSuccessScheme] = useState(null)
+  const [schemes, setSchemes] = useState([])
+  const [loadingSchemes, setLoadingSchemes] = useState(true)
 
   useEffect(() => {
     fetchStates().then(states => {
       if(states && states.length) setAllStates(['All India', ...states])
     }).catch(err => setAllStates(['All India', 'Maharashtra', 'Karnataka', 'Gujarat']))
   }, [])
-
-  const [schemes, setSchemes] = useState([])
-  const [loadingSchemes, setLoadingSchemes] = useState(true)
 
   const fetchSchemes = async () => {
     setLoadingSchemes(true)
@@ -321,11 +321,10 @@ function SchemesTab() {
   }
 
   const handleApply = (schemeTitle) => {
-    alert(`Application Initiated for ${schemeTitle}!\n\nOur MSME nodal officer will review your business profile and contact you within 48 hours.`)
+    setSuccessScheme(schemeTitle)
   }
 
   useEffect(() => {
-    console.log('Triggering Scheme Fetch for:', districtFilter);
     fetchSchemes()
   }, [districtFilter, categoryFilter])
 
@@ -340,11 +339,7 @@ function SchemesTab() {
 
   const filtered = schemes.filter(s => {
     const matchesText = (s.title + s.benefit).toLowerCase().includes(filter.toLowerCase())
-    
-    // Strict State Logic: 
-    // Show 'All India' always, but if a specific state is chosen, only show its own ones.
     const matchesDistrict = districtFilter === 'All India' || s.district === districtFilter || s.district === 'All India'
-    
     const matchesCategory = categoryFilter === 'All Categories' || s.category === categoryFilter || s.category === 'All Categories'
     return matchesText && matchesDistrict && matchesCategory
   })

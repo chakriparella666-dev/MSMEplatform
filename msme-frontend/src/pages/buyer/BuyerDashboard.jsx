@@ -109,10 +109,16 @@ const ProductCard = ({ p, handleAddToCart, wishlistIds = [], toggleWishlist }) =
           <button
             className="btn-primary"
             style={{ width: '100%', borderRadius: '8px' }}
-            disabled={p.totalStock === 0}
-            onClick={(e) => { e.stopPropagation(); handleAddToCart(p._id, p.sizes.find(s => s.stock > 0)?.size || 'M') }}
+            onClick={(e) => { 
+              e.stopPropagation(); 
+              if (p.totalStock === 0) {
+                alert(`Notify Me: Success!\n\nWe will email you at ${user?.email || 'your email'} once "${p.name}" is back in stock.`);
+              } else {
+                navigate(`/product/${p._id}`);
+              }
+            }}
           >
-            {p.totalStock === 0 ? 'Notify Me' : 'Add to Bag'}
+            {p.totalStock === 0 ? 'Notify Me' : 'Buy Now'}
           </button>
         </div>
 
