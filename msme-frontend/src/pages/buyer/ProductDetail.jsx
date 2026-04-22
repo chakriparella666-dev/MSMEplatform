@@ -135,13 +135,30 @@ export default function ProductDetail() {
         <div>
           <div style={{ position: 'relative', marginBottom: '20px', borderRadius: '24px', overflow: 'hidden', background: 'transparent', height: '400px', border: 'none' }}>
             <div 
+              style={{ position: 'absolute', top: '24px', right: '24px', zIndex: 10, cursor: 'pointer', transition: 'all 0.2s', width: '44px', height: '44px', background: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
               onClick={toggleWishlist}
-              style={{ position: 'absolute', top: '24px', right: '24px', zIndex: 10, cursor: 'pointer', transition: 'all 0.3s' }}
               onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
               onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
             >
               {isWished ? <FaHeart color="#000" size={18} /> : <FaRegHeart color="#111827" size={18} />}
             </div>
+
+            {product.images.length > 1 && (
+              <>
+                <button 
+                  onClick={(e) => { e.stopPropagation(); setSelectedImg(prev => (prev === 0 ? product.images.length - 1 : prev - 1)) }}
+                  style={{ position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)', zIndex: 10, background: 'rgba(255,255,255,0.8)', border: 'none', width: '44px', height: '44px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                >
+                  <FaChevronLeft />
+                </button>
+                <button 
+                  onClick={(e) => { e.stopPropagation(); setSelectedImg(prev => (prev === product.images.length - 1 ? 0 : prev + 1)) }}
+                  style={{ position: 'absolute', right: '20px', top: '50%', transform: 'translateY(-50%)', zIndex: 10, background: 'rgba(255,255,255,0.8)', border: 'none', width: '44px', height: '44px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                >
+                  <FaChevronRight />
+                </button>
+              </>
+            )}
 
             {totalStock === 0 && (
               <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2 }}>
@@ -151,7 +168,7 @@ export default function ProductDetail() {
             
             <img
               src={product.images[selectedImg] || 'https://via.placeholder.com/1000?text=No+Image'}
-              style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 1.2s cubic-bezier(0.16, 1, 0.3, 1)' }}
+              style={{ width: '100%', height: '100%', objectFit: 'contain', transition: 'transform 1.2s cubic-bezier(0.16, 1, 0.3, 1)' }}
               alt={product.name}
               onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
               onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
