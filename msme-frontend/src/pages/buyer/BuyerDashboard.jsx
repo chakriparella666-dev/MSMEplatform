@@ -55,10 +55,10 @@ const ProductCard = ({ p, handleAddToCart, wishlistIds = [], toggleWishlist }) =
         {wishlistIds.includes(p._id) ? <FaHeart color="#000" size={18} /> : <FaRegHeart color="#9CA3AF" size={18} />}
       </div>
       
-      <div style={{ height: '260px', background: 'transparent', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+      <div style={{ height: '340px', background: 'transparent', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0' }}>
         <img
           src={p.images[currentImg] || 'https://via.placeholder.com/400?text=No+Image'}
-          style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transition: 'transform 1.2s cubic-bezier(0.16, 1, 0.3, 1)' }}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 1.2s cubic-bezier(0.16, 1, 0.3, 1)' }}
           alt={p.name}
           onError={(e) => { e.target.src = 'https://via.placeholder.com/400?text=Image+Load+Error' }}
         />

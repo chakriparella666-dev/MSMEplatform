@@ -151,7 +151,7 @@ export default function ProductDetail() {
             
             <img
               src={product.images[selectedImg] || 'https://via.placeholder.com/1000?text=No+Image'}
-              style={{ width: '100%', height: '100%', objectFit: 'contain', transition: 'transform 1.2s cubic-bezier(0.16, 1, 0.3, 1)' }}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 1.2s cubic-bezier(0.16, 1, 0.3, 1)' }}
               alt={product.name}
               onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
               onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}

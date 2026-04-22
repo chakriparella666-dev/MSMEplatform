@@ -101,7 +101,7 @@ export default function Wishlist() {
                   style={{ width: '150px', height: '180px', background: 'transparent', borderRadius: '16px', overflow: 'hidden', border: 'none', cursor: 'pointer' }}
                   onClick={() => navigate(`/product/${item._id}`)}
                 >
-                  <img src={item.images?.[0]} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain', opacity: item.totalStock === 0 ? 0.6 : 1 }} />
+                  <img src={item.images?.[0]} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: item.totalStock === 0 ? 0.6 : 1 }} />
                 </div>
 
                 <div style={{ flex: 1, paddingRight: '40px', display: 'flex', flexDirection: 'column' }}>
