@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import axios from 'axios'
 import { FaStar, FaShoppingCart, FaBolt, FaArrowLeft, FaCheck, FaShieldAlt, FaTruck, FaUndo, FaShoppingBag, FaHeart, FaRegHeart, FaChevronLeft, FaChevronRight } from 'react-icons/fa'
 import BuyerNavbar from '../../components/BuyerNavbar'
@@ -19,11 +19,20 @@ function Toast({ message, type }) {
 export default function ProductDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const [product, setProduct] = useState(null)
+  const location = useLocation()
+  
+  const [product, setProduct] = useState(location.state?.product || null)
   const [selectedImg, setSelectedImg] = useState(0)
   const [selectedSize, setSelectedSize] = useState(null)
   const [quantity, setQuantity] = useState(1)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(!location.state?.product)
+
+  useEffect(() => {
+    if (product && !selectedSize) {
+      const firstInStock = product.sizes?.find(s => s.stock > 0)
+      if (firstInStock) setSelectedSize(firstInStock.size)
+    }
+  }, [product])
   const [addingToCart, setAddingToCart] = useState(false)
   const [added, setAdded] = useState(false)
   const [toast, setToast] = useState({ message: '', type: '' })
@@ -35,10 +44,27 @@ export default function ProductDetail() {
   }
 
   useEffect(() => { setAdded(false) }, [selectedSize, quantity])
-  useEffect(() => { fetchProduct() }, [id])
-
+  useEffect(() => { 
+    fetchProduct()
+    if (id) checkWishlistStatus()
+  }, [id])
+  
+  const checkWishlistStatus = async () => {
+    try {
+      const wishRes = await axios.get('/api/user/wishlist', { withCredentials: true })
+      const wishData = wishRes.data?.data || []
+      const exists = wishData.some(w => {
+        if (!w) return false
+        const wId = w._id ? w._id.toString() : w.toString()
+        return wId === id.toString()
+      })
+      if (exists) setIsWished(true)
+    } catch (err) { /* Not logged in or error */ }
+  }
+  
   const fetchProduct = async () => {
     try {
+      setLoading(true)
       console.log(`[ProductDetail] Fetching product with ID: ${id}`);
       const { data } = await axios.get(`/api/products/${id}`)
       console.log(`[ProductDetail] Received data:`, data);
@@ -49,16 +75,11 @@ export default function ProductDetail() {
       } else {
         console.error(`[ProductDetail] Product not found in response:`, data);
       }
-      
-      // Also check wishlist status for user
-      try {
-        const wishRes = await axios.get('/api/user/wishlist', { withCredentials: true })
-        if (wishRes.data.data.some(w => w._id === id || w === id)) setIsWished(true)
-      } catch (err) { /* Not logged in or error */ }
     } catch (err) { 
       console.error(`[ProductDetail] Fetch error:`, err.response || err);
+    } finally { 
+      setLoading(false) 
     }
-    finally { setLoading(false) }
   }
 
   const toggleWishlist = async () => {
@@ -205,10 +226,10 @@ export default function ProductDetail() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
             <span style={{ fontSize: '0.7rem', color: 'var(--text-grey)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1.5px' }}>{product.category}</span>
             <span style={{ color: 'var(--border)' }}>•</span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', background: 'var(--border-soft)', padding: '5px 10px', borderRadius: '8px' }}>
-              <FaStar color="var(--primary)" size={10} />
-              <span style={{ fontWeight: 800, fontSize: '0.75rem', color: 'var(--text-main)' }}>{product.rating || '4.5'}</span>
-              <span style={{ color: 'var(--text-grey)', fontSize: '0.75rem', fontWeight: 600 }}>(248 Reviews)</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#FEF3C7', padding: '5px 10px', borderRadius: '8px' }}>
+              <FaStar color="#D97706" size={10} />
+              <span style={{ fontWeight: 800, fontSize: '0.75rem', color: '#92400E' }}>{product.rating || '4.5'}</span>
+              <span style={{ color: '#B45309', fontSize: '0.75rem', fontWeight: 600 }}>(248 Reviews)</span>
             </div>
           </div>
 
@@ -222,7 +243,7 @@ export default function ProductDetail() {
             <div style={{ fontSize: '1.8rem', fontWeight: 900, color: 'var(--text-main)', letterSpacing: '-1px', fontFamily: "'Sora', sans-serif" }}>
               ₹{product.price.toLocaleString()}
             </div>
-            <div style={{ background: '#F0FDF4', color: '#166534', padding: '6px 12px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 800 }}>
+            <div style={{ background: '#ECFDF5', color: '#059669', padding: '6px 12px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 800, border: '1px solid #D1FAE5' }}>
               FREE DELIVERY
             </div>
           </div>

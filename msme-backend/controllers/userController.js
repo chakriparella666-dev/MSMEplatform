@@ -3,8 +3,25 @@ const Product = require('../models/Product')
 
 exports.getWishlist = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).populate('wishlist')
-    res.json({ success: true, data: user.wishlist })
+    const start = Date.now();
+    console.log(`[API] getWishlist for user: ${req.user?.id}`);
+    
+    const user = await User.findById(req.user.id)
+      .select('wishlist')
+      .populate({
+        path: 'wishlist',
+        select: 'name price images category stock description sizes seller rating',
+        populate: { path: 'seller', select: 'businessName' }
+      })
+      .lean();
+      
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    
+    const wishlist = user.wishlist || [];
+    console.log(`[API] getWishlist completed in ${Date.now() - start}ms. Found ${wishlist.length} items`);
+    res.status(200).json({ success: true, data: wishlist });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message })
   }

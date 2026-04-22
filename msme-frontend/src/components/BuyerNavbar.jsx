@@ -105,8 +105,12 @@ export default function BuyerNavbar({ onSearchChange, onCategoryChange, currentS
 
   const fetchCategories = async () => {
     try {
+      const cached = localStorage.getItem('msme_categories')
+      if (cached) setCategories(JSON.parse(cached))
+      
       const { data } = await axios.get('/api/products/categories')
       setCategories(data.data)
+      localStorage.setItem('msme_categories', JSON.stringify(data.data))
     } catch (err) { console.error(err) }
   }
 
@@ -155,9 +159,9 @@ export default function BuyerNavbar({ onSearchChange, onCategoryChange, currentS
   return (
     <>
       <nav className="buyer-nav" style={{ 
-        background: '#ffffff', 
-        borderBottom: '1px solid #EAEAEA', 
-        height: '80px', 
+        background: 'var(--premium-gradient)', 
+        borderBottom: 'none', 
+        height: '84px', 
         padding: '0 40px',
         display: 'flex',
         alignItems: 'center',
@@ -165,23 +169,23 @@ export default function BuyerNavbar({ onSearchChange, onCategoryChange, currentS
         position: 'sticky',
         top: 0,
         zIndex: 1000,
-        boxShadow: '0 10px 30px rgba(0,0,0,0.02)'
+        boxShadow: '0 10px 40px rgba(79, 70, 229, 0.2)'
       }}>
         <div 
           style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} 
           onClick={handleHomeClick}
         >
-          <div style={{ background: 'var(--premium-gradient)', width: '38px', height: '38px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 16px rgba(0,0,0,0.1)' }}>
-            <FaShoppingBag size={16} color="white" />
+          <div style={{ background: 'white', width: '38px', height: '38px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+            <FaShoppingBag size={16} color="var(--primary)" />
           </div>
           <span style={{ 
             fontSize: '1.4rem', 
             fontWeight: 800, 
-            color: '#09090B', 
+            color: 'white', 
             letterSpacing: '-1px', 
             fontFamily: "'Sora', sans-serif" 
           }}>
-            MSME<span style={{ color: '#71717A', fontWeight: 400 }}>Market</span>
+            MSME<span style={{ color: 'rgba(255,255,255,0.7)', fontWeight: 400 }}>Market</span>
           </span>
         </div>
 
@@ -189,9 +193,10 @@ export default function BuyerNavbar({ onSearchChange, onCategoryChange, currentS
           maxWidth: '500px', 
           flex: 1, 
           margin: '0 40px',
-          background: '#F4F4F5',
-          borderRadius: '14px',
-          border: '1.5px solid #EAEAEA',
+          background: 'rgba(255,255,255,0.15)',
+          backdropFilter: 'blur(10px)',
+          borderRadius: '16px',
+          border: '1px solid rgba(255,255,255,0.2)',
           transition: 'var(--transition)',
           display: 'flex',
           alignItems: 'center'
@@ -208,18 +213,19 @@ export default function BuyerNavbar({ onSearchChange, onCategoryChange, currentS
             onKeyDown={(e) => e.key === 'Enter' && handleSearchCommit()}
             style={{ 
               background: 'transparent', 
-              padding: '12px 20px', 
+              padding: '12px 24px', 
               fontSize: '0.95rem',
-              color: '#09090B',
+              color: 'white',
               border: 'none',
               outline: 'none',
-              flex: 1
+              flex: 1,
+              fontWeight: 500
             }}
           />
           <button 
             className="nav-search-btn" 
             onClick={handleSearchCommit} 
-            style={{ background: 'transparent', border: 'none', padding: '0 20px', color: '#71717A', cursor: 'pointer' }}
+            style={{ background: 'transparent', border: 'none', padding: '0 24px', color: 'rgba(255,255,255,0.8)', cursor: 'pointer' }}
           >
             <FaSearch size={16} />
           </button>
@@ -230,9 +236,9 @@ export default function BuyerNavbar({ onSearchChange, onCategoryChange, currentS
             style={{ cursor: 'pointer', textAlign: 'center' }}
             onClick={() => setShowLocationModal(true)}
           >
-            <div style={{ fontSize: '0.7rem', color: '#71717A', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Delivery to</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#09090B', fontWeight: 700, fontSize: '0.9rem' }}>
-              <FaMapMarkerAlt size={12} color="#09090B" /> {district || 'India'}
+            <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.6)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Delivery to</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'white', fontWeight: 700, fontSize: '0.9rem' }}>
+              <FaMapMarkerAlt size={12} color="white" /> {district || 'India'}
             </div>
           </div>
 
@@ -241,14 +247,14 @@ export default function BuyerNavbar({ onSearchChange, onCategoryChange, currentS
             onClick={() => setSidebarOpen(true)}
           >
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '0.7rem', color: '#71717A', fontWeight: 800, textTransform: 'uppercase' }}>Account</div>
-              <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#09090B' }}>{user?.name ? user.name.split(' ')[0] : 'Sign In'}</div>
+              <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.6)', fontWeight: 800, textTransform: 'uppercase' }}>Account</div>
+              <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'white' }}>{user?.name ? user.name.split(' ')[0] : 'Sign In'}</div>
             </div>
-            <div style={{ width: '38px', height: '38px', borderRadius: '50%', overflow: 'hidden', background: '#F4F4F5', border: '1px solid #EAEAEA', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'var(--transition)' }} onMouseEnter={e => e.currentTarget.style.borderColor = '#000'}>
+            <div style={{ width: '42px', height: '42px', borderRadius: '50%', overflow: 'hidden', background: 'rgba(255,255,255,0.1)', border: '1.5px solid rgba(255,255,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'var(--transition)' }} onMouseEnter={e => e.currentTarget.style.borderColor = '#fff'}>
               {user?.avatar ? (
                 <img src={user.avatar} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               ) : (
-                <FaUserCircle size={28} color="#A1A1AA" />
+                <FaUserCircle size={30} color="white" />
               )}
             </div>
           </div>
@@ -258,18 +264,18 @@ export default function BuyerNavbar({ onSearchChange, onCategoryChange, currentS
             style={{ 
               position: 'relative', 
               cursor: 'pointer',
-              color: '#09090B',
+              color: 'white',
               padding: '12px',
-              borderRadius: '12px',
+              borderRadius: '16px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               transition: 'var(--transition)'
             }}
-            onMouseEnter={e => e.currentTarget.style.background = '#F4F4F5'}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
             onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
           >
-            <FaHeart size={18} />
+            <FaHeart size={20} />
             {wishlistCount > 0 && (
               <span style={{ 
                 position: 'absolute', top: '4px', right: '4px',
@@ -288,38 +294,39 @@ export default function BuyerNavbar({ onSearchChange, onCategoryChange, currentS
             style={{ 
               position: 'relative', 
               cursor: 'pointer',
-              background: 'var(--premium-gradient)',
-              color: 'white',
-              padding: '12px 24px',
-              borderRadius: '14px',
+              background: 'white',
+              color: 'var(--primary)',
+              padding: '14px 28px',
+              borderRadius: '18px',
               display: 'flex',
               alignItems: 'center',
               gap: '12px',
               transition: 'var(--transition)',
-              boxShadow: '0 8px 16px rgba(0,0,0,0.1)'
+              boxShadow: '0 8px 30px rgba(0,0,0,0.15)'
             }}
             onMouseEnter={e => {
-              e.currentTarget.style.transform = 'translateY(-2px)'
-              e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.18)'
+              e.currentTarget.style.transform = 'translateY(-3px)'
+              e.currentTarget.style.boxShadow = '0 15px 35px rgba(0,0,0,0.25)'
             }}
             onMouseLeave={e => {
               e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.1)'
+              e.currentTarget.style.boxShadow = '0 8px 30px rgba(0,0,0,0.15)'
             }}
           >
-            <FaShoppingCart size={16} />
-            <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>Bag</span>
+            <FaShoppingCart size={16} color="var(--primary)" />
+            <span style={{ fontWeight: 800, fontSize: '1rem', letterSpacing: '-0.2px' }}>Bag</span>
             <span style={{ 
-              background: '#ffffff', 
-              color: '#000000', 
-              borderRadius: '7px', 
-              minWidth: '20px', 
-              height: '20px', 
+              background: 'var(--primary)', 
+              color: '#ffffff', 
+              borderRadius: '8px', 
+              minWidth: '22px', 
+              height: '22px', 
               fontSize: '11px', 
               display: 'flex', 
               alignItems: 'center', 
               justifyContent: 'center', 
               fontWeight: 900,
+              boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
             }}>
               {cart?.items?.reduce((acc, item) => acc + item.quantity, 0) || 0}
             </span>

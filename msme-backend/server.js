@@ -13,7 +13,11 @@ require('./config/passport')
 // Connect to Database
 connectDB()
 
+const morgan = require('morgan')
 const app = express()
+
+// Request logging
+app.use(morgan('dev'))
 
 // Rocket-Fast performance middle-wares
 app.use(compression()) // Compresses all responses

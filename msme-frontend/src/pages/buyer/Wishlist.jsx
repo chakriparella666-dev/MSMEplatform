@@ -17,7 +17,8 @@ export default function Wishlist() {
     try {
       // the endpoint might not exist yet, we'll gracefully fallback
       const { data } = await axios.get('/api/user/wishlist', { withCredentials: true })
-      setWishlist(data.data)
+      // Filter out nulls in case products were deleted
+      setWishlist((data.data || []).filter(item => item !== null))
     } catch (err) {
       console.error(err)
       setWishlist([])

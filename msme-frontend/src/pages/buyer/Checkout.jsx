@@ -88,7 +88,7 @@ export default function Checkout() {
           Secure Checkout
         </div>
         <div style={{ width: '120px', textAlign: 'right', display: 'flex', justifyContent: 'flex-end' }}>
-          <div style={{ background: '#F0FDF4', color: '#166534', padding: '6px 12px', borderRadius: '8px', fontSize: '0.7rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div style={{ background: '#ECFDF5', color: '#059669', padding: '6px 12px', borderRadius: '8px', fontSize: '0.7rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px', border: '1px solid #D1FAE5' }}>
             <FaCheck size={10} /> ENCRYPTED
           </div>
         </div>
@@ -96,18 +96,18 @@ export default function Checkout() {
 
       {/* Modern Progress Line */}
       <div style={{ maxWidth: '700px', margin: '40px auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative', padding: '0 20px' }}>
-        <div style={{ position: 'absolute', top: '24%', left: '40px', right: '40px', height: '2px', background: '#F3F4F6', zIndex: 1 }}></div>
-        <div style={{ position: 'absolute', top: '24%', left: '40px', width: `${(step / (steps.length - 1)) * 100 - 8}%`, height: '2px', background: '#000000', zIndex: 2, transition: 'width 0.8s cubic-bezier(0.16, 1, 0.3, 1)' }}></div>
+        <div style={{ position: 'absolute', top: '24%', left: '40px', right: '40px', height: '2px', background: '#F1F5F9', zIndex: 1 }}></div>
+        <div style={{ position: 'absolute', top: '24%', left: '40px', width: `${(step / (steps.length - 1)) * 100 - 8}%`, height: '2px', background: 'var(--primary)', zIndex: 2, transition: 'width 0.8s cubic-bezier(0.16, 1, 0.3, 1)' }}></div>
         
         {steps.map((s, i) => (
           <div key={i} style={{ zIndex: 10, position: 'relative', textAlign: 'center', flex: 1 }}>
             <div style={{ 
               width: '14px', height: '14px', borderRadius: '50%', 
-              background: i <= step ? '#000000' : '#ffffff', 
-              border: `3px solid ${i <= step ? '#000000' : '#E5E7EB'}`,
+              background: i <= step ? 'var(--primary)' : '#ffffff', 
+              border: `3px solid ${i <= step ? 'var(--primary)' : '#E2E8F0'}`,
               margin: '0 auto 12px',
               transition: 'all 0.4s ease',
-              boxShadow: i <= step ? '0 0 0 4px rgba(0,0,0,0.05)' : 'none'
+              boxShadow: i <= step ? '0 0 0 4px var(--primary-glow)' : 'none'
             }}></div>
             <span style={{ fontSize: '0.7rem', fontWeight: i <= step ? 800 : 600, textTransform: 'uppercase', letterSpacing: '1.5px', color: i <= step ? '#111827' : '#9CA3AF' }}>{s}</span>
           </div>

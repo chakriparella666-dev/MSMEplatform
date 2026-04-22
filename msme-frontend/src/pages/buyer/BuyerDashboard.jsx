@@ -237,20 +237,27 @@ export default function BuyerDashboard() {
                {products.slice(0, 8).map(p => (
                  <div 
                    key={`featured-${p._id}`}
-                   onClick={() => navigate(`/product/${p._id}`)}
+                   onClick={() => navigate(`/product/${p._id}`, { state: { product: p } })}
                    style={{ 
-                     minWidth: '580px', 
-                     height: '340px', 
-                     borderRadius: '32px', 
-                     background: 'linear-gradient(135deg, #09090B 0%, #27272A 100%)',
+                     minWidth: '600px', 
+                     height: '360px', 
+                     borderRadius: '40px', 
+                     background: 'var(--premium-gradient)',
                      position: 'relative',
                      overflow: 'hidden',
                      cursor: 'pointer',
                      scrollSnapAlign: 'start',
-                     transition: 'transform 0.3s'
+                     transition: 'var(--transition)',
+                     boxShadow: '0 20px 50px rgba(79, 70, 229, 0.25)'
                    }}
-                   onMouseEnter={e => e.currentTarget.style.transform = 'scale(0.99)'}
-                   onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                   onMouseEnter={e => {
+                     e.currentTarget.style.transform = 'scale(0.985)'
+                     e.currentTarget.style.boxShadow = '0 30px 70px rgba(79, 70, 229, 0.35)'
+                   }}
+                   onMouseLeave={e => {
+                     e.currentTarget.style.transform = 'scale(1)'
+                     e.currentTarget.style.boxShadow = '0 20px 50px rgba(79, 70, 229, 0.25)'
+                   }}
                  >
                     {/* Decorative Background */}
                     <div style={{ position: 'absolute', top: '-100px', right: '-100px', width: '300px', height: '300px', background: 'rgba(255,255,255,0.03)', borderRadius: '50%' }}></div>

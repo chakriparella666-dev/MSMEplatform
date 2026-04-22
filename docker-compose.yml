@@ -6,19 +6,8 @@ services:
     build: ./msme-backend
     ports:
       - "5000:5000"
-    environment:
-      MONGO_URL: ${MONGO_URL}
-      JWT_SECRET: ${JWT_SECRET:-msmesecretkey}
-      JWT_EXPIRE: ${JWT_EXPIRE:-7d}
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-      GOOGLE_CALLBACK_URL: ${GOOGLE_CALLBACK_URL:-http://localhost:5000/api/auth/google/callback}
-      BACKEND_URL: ${BACKEND_URL:-http://localhost:5000}
-      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3001}
-      CLIENT_URL: ${FRONTEND_URL:-http://localhost:3001}
-      EMAIL_SERVICE: ${EMAIL_SERVICE}
-      EMAIL_USER: ${EMAIL_USER}
-      EMAIL_PASS: ${EMAIL_PASS}
+    env_file:
+      - msme-backend/.env
     restart: always
 
 
