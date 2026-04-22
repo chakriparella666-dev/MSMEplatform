@@ -125,8 +125,7 @@ export default function Wishlist() {
                   <button 
                     className="btn-primary" 
                     style={{ marginTop: '20px', padding: '12px 24px', borderRadius: '10px', alignSelf: 'flex-start', fontSize: '0.8rem' }}
-                    onClick={() => handleMoveToBag(item)}
-                    disabled={item.totalStock === 0}
+                    onClick={() => item.totalStock === 0 ? navigate(`/product/${item._id}`) : handleMoveToBag(item)}
                   >
                     {item.totalStock === 0 ? 'VIEW DETAILS' : 'MOVE TO BAG'}
                   </button>
