@@ -79,7 +79,7 @@ export default function CartPage() {
                   <div style={{ width: '100px', height: '130px', flexShrink: 0, overflow: 'hidden', borderRadius: '12px', background: '#F9FAFB', border: '1px solid #F3F4F6' }}>
                     <img
                       src={item.product?.images?.[0] || 'https://via.placeholder.com/200'}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                       onError={e => e.target.src = 'https://via.placeholder.com/200'}
                     />
                   </div>

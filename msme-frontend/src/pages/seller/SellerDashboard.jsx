@@ -1554,10 +1554,15 @@ function ProductForm({ newProduct, setNewProduct, isEditing, onSubmit, onClose }
 
 // ── Main Dashboard Component ─────────────────────────────────────────────────
 export default function SellerDashboard() {
-  const { user, setUser, logout } = useAuth()
+  const { user, setUser, logout, refreshUser } = useAuth()
   const [activeTab, setActiveTab] = useState(() => {
     return localStorage.getItem('seller_active_tab') || 'overview'
   })
+
+  // Ensure we have latest data on mount
+  useEffect(() => {
+    if (refreshUser) refreshUser()
+  }, [])
 
   useEffect(() => {
     localStorage.setItem('seller_active_tab', activeTab)
@@ -1637,7 +1642,10 @@ export default function SellerDashboard() {
 
   console.log('Seller Dashboard User:', user);
   const [onboardingSkipped, setOnboardingSkipped] = useState(() => localStorage.getItem('onboarding_skipped') === 'true')
+  
+  // Robust isComplete check — fallback to loading if user is missing but we're supposedly not loading
   const isComplete = (user?.isProfileComplete === true) || (!!user?.businessName) || onboardingSkipped;
+  
   console.log('Seller Dashboard isComplete:', isComplete);
 
   useEffect(() => {
@@ -1648,6 +1656,16 @@ export default function SellerDashboard() {
     }
   }, [isComplete])
 
+  // Safety: If auth is supposedly done but user is still null, something is wrong
+  // but we shouldn't crash. Show loading if user is missing.
+  if (loading || !user) return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'var(--background)' }}>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ width: '56px', height: '56px', border: '4px solid #e2e8f0', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }}></div>
+        <p style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Loading your business hub...</p>
+      </div>
+    </div>
+  )
 
   const fetchProducts = async () => {
     try { 
@@ -1754,16 +1772,6 @@ export default function SellerDashboard() {
       fetchProducts(); fetchOrders(); fetchStats();
     } catch (err) { alert(err.response?.data?.message || 'Update failed') }
   }
-
-  // Loading spinner — prevents blank flash
-  if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'var(--background)' }}>
-      <div style={{ textAlign: 'center' }}>
-        <div style={{ width: '56px', height: '56px', border: '4px solid #e2e8f0', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }}></div>
-        <p style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Loading your dashboard...</p>
-      </div>
-    </div>
-  )
 
   if (!isComplete) return (
     <SellerOnboarding onComplete={async () => {

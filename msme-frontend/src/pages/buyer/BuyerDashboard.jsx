@@ -55,10 +55,10 @@ const ProductCard = ({ p, handleAddToCart, wishlistIds = [], toggleWishlist }) =
         {wishlistIds.includes(p._id) ? <FaHeart color="#000" size={18} /> : <FaRegHeart color="#9CA3AF" size={18} />}
       </div>
       
-      <div style={{ height: '260px', background: '#F9FAFB', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ height: '260px', background: '#ffffff', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
         <img
           src={p.images[currentImg] || 'https://via.placeholder.com/400?text=No+Image'}
-          style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 1.2s cubic-bezier(0.16, 1, 0.3, 1)' }}
+          style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transition: 'transform 1.2s cubic-bezier(0.16, 1, 0.3, 1)' }}
           alt={p.name}
           onError={(e) => { e.target.src = 'https://via.placeholder.com/400?text=Image+Load+Error' }}
         />
@@ -257,8 +257,8 @@ export default function BuyerDashboard() {
                     <div style={{ position: 'absolute', bottom: '-50px', left: '-50px', width: '200px', height: '200px', background: 'rgba(255,255,255,0.03)', borderRadius: '50%' }}></div>
 
                     <div style={{ padding: '48px', height: '100%', display: 'flex', alignItems: 'center', gap: '32px', position: 'relative', zIndex: 2 }}>
-                       <div style={{ flex: 1 }}>
-                          <h2 style={{ color: 'white', fontSize: '2.2rem', fontWeight: 900, margin: '0 0 12px', letterSpacing: '-1px', lineHeight: 1.1 }}>{p.name}</h2>
+                       <div style={{ flex: 1, minWidth: 0 }}>
+                          <h2 style={{ color: 'white', fontSize: '1.8rem', fontWeight: 900, margin: '0 0 12px', letterSpacing: '-0.5px', lineHeight: 1.2, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{p.name}</h2>
                           <div style={{ color: '#EAB308', fontSize: '0.95rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                              <FaStore size={14} /> {p.seller?.businessName || 'Authentic MSME'}
                           </div>
@@ -269,8 +269,8 @@ export default function BuyerDashboard() {
                              <div style={{ color: '#A1A1AA', fontSize: '0.85rem', fontWeight: 700 }}>Exclusive Collection</div>
                           </div>
                        </div>
-                       <div style={{ width: '220px', height: '220px', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 20px 50px rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                          <img src={p.images[0]} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={p.name} />
+                       <div style={{ width: '220px', height: '220px', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 20px 50px rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', background: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '12px' }}>
+                          <img src={p.images[0]} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} alt={p.name} />
                        </div>
                     </div>
                  </div>
