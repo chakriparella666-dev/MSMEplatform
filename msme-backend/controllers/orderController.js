@@ -234,6 +234,7 @@ exports.generateWaybill = async (req, res) => {
     // Mock AWB generation
     const awb = 'SR' + Math.random().toString(36).substring(2, 10).toUpperCase();
     order.trackingId = awb;
+    order.awbNumber = awb;
     order.logisticsProvider = 'Shiprocket';
     order.status = 'Dispatched';
     await order.save();

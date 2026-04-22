@@ -233,7 +233,7 @@ export default function Addresses() {
                         fontSize: '0.9rem'
                       }}
                     >
-                      {t.toUpperCase()} STATION
+                      {t.toUpperCase()} ADDRESS
                     </button>
                   ))}
                 </div>

@@ -14,6 +14,10 @@ const UserSchema = new mongoose.Schema({
   panCardName: { type: String, trim: true },
   district: { type: String, trim: true },
   state: { type: String, trim: true },
+  coordinates: {
+    lat: { type: Number },
+    lng: { type: Number }
+  },
   isProfileComplete: { type: Boolean, default: false },
 
   

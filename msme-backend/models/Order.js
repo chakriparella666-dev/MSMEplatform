@@ -60,6 +60,9 @@ const OrderSchema = new mongoose.Schema({
   trackingId: {
     type: String
   },
+  awbNumber: {
+    type: String
+  },
   logisticsProvider: {
     type: String,
     default: 'Shiprocket'
