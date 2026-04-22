@@ -137,8 +137,8 @@ export default function Addresses() {
       <div style={{ maxWidth: '1200px', margin: '60px auto', padding: '0 60px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '60px' }}>
           <div>
-            <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-main)', letterSpacing: '-0.5px', fontFamily: "'Sora', sans-serif" }}>Delivery Ports</h1>
-            <p style={{ color: 'var(--text-muted)', marginTop: '4px', fontWeight: 600, fontSize: '0.75rem' }}>Your curated list of verified delivery destinations</p>
+            <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-main)', letterSpacing: '-0.5px', fontFamily: "'Sora', sans-serif" }}>Shipping Addresses</h1>
+            <p style={{ color: 'var(--text-muted)', marginTop: '4px', fontWeight: 600, fontSize: '0.75rem' }}>Your list of verified delivery addresses</p>
           </div>
           {!showForm && (
             <button 
@@ -146,7 +146,7 @@ export default function Addresses() {
               onClick={() => { resetForm(); setShowForm(true); }}
               style={{ padding: '12px 24px', borderRadius: '12px', fontSize: '0.85rem' }}
             >
-              <FaPlus size={10} /> ADD NEW PORT
+              <FaPlus size={10} /> ADD NEW ADDRESS
             </button>
           )}
         </div>
@@ -154,7 +154,7 @@ export default function Addresses() {
         {showForm && (
           <div style={{ background: 'white', padding: '40px', borderRadius: '32px', marginBottom: '40px', boxShadow: 'var(--shadow)', border: '1px solid var(--border-soft)' }}>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '32px', color: '#111827', fontFamily: "'Sora', sans-serif" }}>
-              {editingId ? 'RECONFIGURE ACCESS' : 'AUTHORIZE NEW PORT'}
+              {editingId ? 'EDIT ADDRESS' : 'ADD NEW ADDRESS'}
             </h2>
             
             <button 
@@ -163,7 +163,7 @@ export default function Addresses() {
               disabled={gettingLocation}
               style={{ width: '100%', background: '#000', color: '#fff', border: 'none', padding: '20px', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', cursor: gettingLocation ? 'default' : 'pointer', fontWeight: 800, fontSize: '1rem', marginBottom: '48px', transition: 'all 0.3s' }}
             >
-              <FaCrosshairs /> {gettingLocation ? 'SYNCHRONIZING...' : 'AUTODETECT GEOLOCATION'}
+              <FaCrosshairs /> {gettingLocation ? 'LOCATING...' : 'AUTODETECT MY LOCATION'}
             </button>
 
             <form onSubmit={handleSave}>
@@ -205,11 +205,10 @@ export default function Addresses() {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', marginBottom: '48px' }}>
                 <div>
-                  <label style={{ fontSize: '0.75rem', fontWeight: 900, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '12px', display: 'block' }}>Metropolis / Town</label>
                   <input type="text" className="input-field" placeholder="City" required value={city} onChange={e => setCity(e.target.value)} />
                 </div>
                 <div>
-                  <label style={{ fontSize: '0.75rem', fontWeight: 900, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '12px', display: 'block' }}>Federation State</label>
+                  <label style={{ fontSize: '0.75rem', fontWeight: 900, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '12px', display: 'block' }}>State</label>
                   <select className="input-field" value={state} onChange={e => setState(e.target.value)} required>
                     <option value="">Select State</option>
                     {apiStates.map(s => <option key={s} value={s}>{s}</option>)}
@@ -218,7 +217,7 @@ export default function Addresses() {
               </div>
 
               <div style={{ marginBottom: '60px' }}>
-                <label style={{ fontSize: '0.75rem', fontWeight: 900, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '20px', display: 'block' }}>Classify Port As</label>
+                <label style={{ fontSize: '0.75rem', fontWeight: 900, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '20px', display: 'block' }}>Classify Address As</label>
                 <div style={{ display: 'flex', gap: '20px' }}>
                   {['Home', 'Work'].map(t => (
                     <button 
@@ -242,7 +241,7 @@ export default function Addresses() {
 
               <div style={{ display: 'flex', gap: '24px', borderTop: '1px solid #F3F4F6', paddingTop: '48px' }}>
                 <button type="submit" className="btn-primary" disabled={loading} style={{ flex: 2, padding: '24px', borderRadius: '20px', fontSize: '1.1rem' }}>
-                    {loading ? 'SYNCHRONIZING...' : 'CONFIRM AUTHORIZATION'}
+                    {loading ? 'SAVING...' : 'SAVE ADDRESS'}
                 </button>
                 <button type="button" onClick={() => { setShowForm(false); resetForm(); }} className="btn-outline" style={{ flex: 1, padding: '24px', borderRadius: '20px', fontSize: '1.1rem', color: '#EF4444', borderColor: '#FEE2E2' }}>DISCARD</button>
               </div>
@@ -256,8 +255,8 @@ export default function Addresses() {
               <div style={{ background: '#F9FAFB', width: '100px', height: '100px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 32px' }}>
                 <FaMapMarkerAlt size={42} color="#D1D5DB" />
               </div>
-              <h3 style={{ fontSize: '2rem', color: '#111827', marginBottom: '12px' }}>Port directory is silent</h3>
-              <p style={{ color: '#6B7280', fontSize: '1.1rem' }}>Establish your first delivery coordinate to proceed.</p>
+              <h3 style={{ fontSize: '2rem', color: '#111827', marginBottom: '12px' }}>Address list is empty</h3>
+              <p style={{ color: '#6B7280', fontSize: '1.1rem' }}>Add your first delivery address to proceed.</p>
             </div>
           )}
           
@@ -281,11 +280,11 @@ export default function Addresses() {
                 <button 
                     onClick={() => handleEdit(addr)}
                     style={{ background: 'none', border: 'none', color: '#111827', fontWeight: 900, cursor: 'pointer', fontSize: '0.75rem', letterSpacing: '0.8px' }}
-                >RECONFIGURE</button>
+                >EDIT</button>
                 <button 
                     onClick={() => handleDelete(addr._id)}
                     style={{ background: 'none', border: 'none', color: '#EF4444', fontWeight: 900, cursor: 'pointer', fontSize: '0.75rem', letterSpacing: '0.8px' }}
-                >DEAUTHORIZE</button>
+                >DELETE</button>
               </div>
             </div>
           ))}

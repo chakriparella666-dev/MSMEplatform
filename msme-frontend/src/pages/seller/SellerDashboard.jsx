@@ -363,7 +363,7 @@ function SchemesTab() {
     <div className="animate-fade-in" style={{ padding: '0 20px' }}>
       <header style={{ marginBottom: '32px' }}>
         <h1 style={{ fontSize: '1.75rem', fontWeight: 800, fontFamily: "'Sora', sans-serif" }}>Government Scheme Portal</h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Central & State government benefits curated for your business category.</p>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Central & State government benefits for your business category.</p>
         
         {successScheme && (
           <div style={{ background: '#dcfce7', color: '#166534', padding: '16px 24px', borderRadius: '12px', marginTop: '24px', fontWeight: 700, display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid #bbf7d0', animation: 'slideDown 0.4s ease' }}>

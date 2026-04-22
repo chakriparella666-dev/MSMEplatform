@@ -69,7 +69,7 @@ export default function Wishlist() {
       <BuyerNavbar />
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
         <div style={{ width: '48px', height: '48px', border: '4px solid var(--border)', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin 1s linear infinite', marginBottom: '20px' }}></div>
-        <p style={{ color: 'var(--text-grey)', fontWeight: 600, fontSize: '0.9rem', letterSpacing: '1px' }}>SYNCHRONIZING YOUR CURATION...</p>
+        <p style={{ color: 'var(--text-grey)', fontWeight: 600, fontSize: '0.9rem', letterSpacing: '1px' }}>SYNCHRONIZING YOUR WISHLIST...</p>
       </div>
     </div>
   )
@@ -81,7 +81,7 @@ export default function Wishlist() {
       <div style={{ maxWidth: '1000px', margin: '60px auto', padding: '0 40px' }}>
         <div style={{ background: 'white', borderRadius: '32px', boxShadow: 'var(--shadow)', border: '1px solid var(--border-soft)', overflow: 'hidden' }}>
           <div style={{ padding: '30px 40px', borderBottom: '1px solid var(--border-soft)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-main)', fontFamily: "'Sora', sans-serif", letterSpacing: '-0.5px' }}>My Curation ({wishlist.length})</h2>
+            <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-main)', fontFamily: "'Sora', sans-serif", letterSpacing: '-0.5px' }}>My Wishlist ({wishlist.length})</h2>
             {wishlist.length > 0 && <button onClick={() => navigate('/buyer')} style={{ background: 'var(--border-soft)', border: 'none', padding: '10px 20px', borderRadius: '10px', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer' }}>CONTINUE SHOPPING</button>}
           </div>
 
@@ -98,7 +98,7 @@ export default function Wishlist() {
                 </button>
                 
                 <div 
-                  style={{ width: '150px', height: '180px', background: '#F9FAFB', borderRadius: '16px', overflow: 'hidden', border: '1px solid #F3F4F6', cursor: 'pointer' }}
+                  style={{ width: '150px', height: '180px', background: 'transparent', borderRadius: '16px', overflow: 'hidden', border: 'none', cursor: 'pointer' }}
                   onClick={() => navigate(`/product/${item._id}`)}
                 >
                   <img src={item.images?.[0]} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain', opacity: item.totalStock === 0 ? 0.6 : 1 }} />
@@ -140,7 +140,7 @@ export default function Wishlist() {
                  <div style={{ background: '#F9FAFB', width: '100px', height: '100px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
                     <FaRegHeart size={42} color="#D1D5DB" />
                  </div>
-                 <h3 style={{ fontSize: '1.5rem', color: '#111827', marginBottom: '8px' }}>Your curation is empty</h3>
+                 <h3 style={{ fontSize: '1.5rem', color: '#111827', marginBottom: '8px' }}>Your wishlist is empty</h3>
                  <p style={{ color: '#9CA3AF', marginBottom: '32px' }}>Explore our collection and save your favorite pieces here.</p>
                  <button className="btn-primary" style={{ padding: '16px 48px', borderRadius: '16px' }} onClick={() => navigate('/buyer')}>Start Exploring</button>
                </div>

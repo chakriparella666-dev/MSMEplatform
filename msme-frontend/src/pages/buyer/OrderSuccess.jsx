@@ -15,7 +15,7 @@ export default function OrderSuccess() {
         
         <h1 style={{ fontSize: '3rem', fontWeight: 800, color: '#111827', marginBottom: '16px', letterSpacing: '-2px', fontFamily: "'Sora', sans-serif" }}>Securely Placed.</h1>
         <p style={{ color: '#6B7280', marginBottom: '48px', lineHeight: 1.8, fontSize: '1.2rem', fontWeight: 500 }}>
-          Your order has been authorized and is being prepared for express curation.
+          Your order has been authorized and is being prepared for express delivery.
         </p>
 
         {order && (
@@ -30,7 +30,7 @@ export default function OrderSuccess() {
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #EEF2F6', paddingTop: '16px' }}>
               <span style={{ color: '#9CA3AF', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Shipping Status</span>
-              <span style={{ background: '#000', color: 'white', padding: '4px 12px', borderRadius: '8px', fontSize: '0.7rem', fontWeight: 900 }}>PRIORITY CURATION</span>
+              <span style={{ background: '#000', color: 'white', padding: '4px 12px', borderRadius: '8px', fontSize: '0.7rem', fontWeight: 900 }}>PRIORITY SHIPPING</span>
             </div>
           </div>
         )}
@@ -42,7 +42,7 @@ export default function OrderSuccess() {
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '16px' }}>
           <button className="btn-outline" style={{ padding: '20px', borderRadius: '16px', fontWeight: 800, fontSize: '0.95rem' }} onClick={() => navigate('/my-orders')}>TRACK SHIPMENT</button>
-          <button className="btn-primary" style={{ padding: '20px', borderRadius: '16px', fontWeight: 800, fontSize: '0.95rem' }} onClick={() => navigate('/buyer')}>BACK TO CURATION</button>
+          <button className="btn-primary" style={{ padding: '20px', borderRadius: '16px', fontWeight: 800, fontSize: '0.95rem' }} onClick={() => navigate('/buyer')}>BACK TO SHOPPING</button>
         </div>
       </div>
     </div>

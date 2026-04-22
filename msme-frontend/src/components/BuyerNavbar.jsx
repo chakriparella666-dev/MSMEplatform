@@ -19,12 +19,14 @@ export default function BuyerNavbar({ onSearchChange, onCategoryChange, currentS
     return localStorage.getItem('user_district') || user?.district || ''
   })
 
-  // Sync district when user object updates
+  // Stop syncing from user object to allow independent buyer location
+  /*
   useEffect(() => {
     if (user?.district) {
       setDistrict(user.district);
     }
   }, [user])
+  */
 
   useEffect(() => {
     localStorage.setItem('user_district', district);
@@ -197,7 +199,7 @@ export default function BuyerNavbar({ onSearchChange, onCategoryChange, currentS
           <input 
             type="text" 
             className="nav-search-input" 
-            placeholder="Search local treasures..."
+            placeholder="Search products or business names..."
             value={localSearch}
             onChange={(e) => {
               setLocalSearch(e.target.value)

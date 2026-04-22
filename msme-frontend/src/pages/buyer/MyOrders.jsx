@@ -50,7 +50,7 @@ export default function MyOrders() {
       <div style={{ maxWidth: '1000px', margin: '40px auto', padding: '0 40px' }}>
         <div style={{ marginBottom: '40px' }}>
           <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-main)', letterSpacing: '-1px', fontFamily: "'Sora', sans-serif" }}>Purchase History</h1>
-          <p style={{ color: 'var(--text-muted)', marginTop: '6px', fontWeight: 600, fontSize: '0.85rem' }}>Review and track your curated acquisitions</p>
+          <p style={{ color: 'var(--text-muted)', marginTop: '6px', fontWeight: 600, fontSize: '0.85rem' }}>Review and track your previous orders</p>
         </div>
 
         {orders.length === 0 ? (
@@ -70,7 +70,7 @@ export default function MyOrders() {
                 <div style={{ padding: '24px 32px', background: '#F9FAFB', borderBottom: '1px solid var(--border-soft)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div style={{ display: 'flex', gap: '40px' }}>
                     <div>
-                      <div style={{ fontSize: '0.65rem', color: 'var(--text-grey)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Order Identifier</div>
+                      <div style={{ fontSize: '0.65rem', color: 'var(--text-grey)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Order ID</div>
                       <div style={{ fontWeight: 800, color: 'var(--text-main)', fontSize: '0.85rem' }}>#{order._id.slice(-8).toUpperCase()}</div>
                     </div>
                     <div>
@@ -79,7 +79,7 @@ export default function MyOrders() {
                     </div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '0.65rem', color: 'var(--text-grey)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Total Investment</div>
+                    <div style={{ fontSize: '0.65rem', color: 'var(--text-grey)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Total Amount</div>
                     <div style={{ fontWeight: 900, color: 'var(--text-main)', fontSize: '1.1rem', letterSpacing: '-0.5px' }}>₹{order.totalAmount?.toLocaleString()}</div>
                   </div>
                 </div>
@@ -135,7 +135,7 @@ export default function MyOrders() {
                     <div style={{ fontSize: '1rem', color: 'var(--text-muted)', fontWeight: 500 }}>{order.shippingAddress?.phone}</div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-grey)', fontWeight: 800, letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: '10px' }}>AUTHORIZED TOTAL</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-grey)', fontWeight: 800, letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: '10px' }}>TOTAL AMOUNT</div>
                     <div style={{ fontWeight: 900, fontSize: '2rem', color: 'var(--text-main)', letterSpacing: '-1.5px', fontFamily: "'Sora', sans-serif" }}>₹{order.totalAmount?.toLocaleString()}</div>
                   </div>
                 </div>

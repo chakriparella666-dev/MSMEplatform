@@ -133,7 +133,7 @@ export default function ProductDetail() {
       <div style={{ maxWidth: '1300px', margin: '20px auto', padding: '0 40px', display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: '40px' }}>
         {/* Left: Image Gallery */}
         <div>
-          <div style={{ position: 'relative', marginBottom: '20px', borderRadius: '24px', overflow: 'hidden', background: '#F9FAFB', height: '400px', border: '1px solid #F3F4F6' }}>
+          <div style={{ position: 'relative', marginBottom: '20px', borderRadius: '24px', overflow: 'hidden', background: 'transparent', height: '400px', border: 'none' }}>
             <div 
               onClick={toggleWishlist}
               style={{ position: 'absolute', top: '24px', right: '24px', zIndex: 10, cursor: 'pointer', transition: 'all 0.3s' }}
@@ -198,7 +198,7 @@ export default function ProductDetail() {
           <h1 style={{ fontSize: '1.7rem', fontWeight: 800, fontFamily: "'Sora', sans-serif", letterSpacing: '-0.8px', lineHeight: 1.1, marginBottom: '10px', color: 'var(--text-main)' }}>{product.name}</h1>
           
           <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '32px', fontWeight: 600 }}>
-            Curated by <strong style={{ color: 'var(--text-main)', fontWeight: 800 }}>{product.seller?.businessName || 'Elite Merchant'}</strong>
+            Sold by <strong style={{ color: 'var(--text-main)', fontWeight: 800 }}>{product.seller?.businessName || 'Elite Merchant'}</strong>
           </div>
 
           <div style={{ marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -255,7 +255,7 @@ export default function ProductDetail() {
                 className="btn-outline"
                 style={{ padding: '18px', borderRadius: '16px', fontSize: '0.95rem', width: '100%', borderWidth: '1.5px', background: 'white' }}
               >
-                {addingToCart ? 'AUTHORIZING...' : 'ADD TO BAG'}
+                {addingToCart ? 'ADDING...' : 'ADD TO BAG'}
               </button>
               
               <div style={{ display: 'flex', alignItems: 'center', border: '1.5px solid var(--border-soft)', borderRadius: '16px', overflow: 'hidden', background: 'white' }}>
@@ -281,9 +281,9 @@ export default function ProductDetail() {
           {/* Value Props */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '32px', padding: '40px 0', borderTop: '1px solid var(--border-soft)', marginBottom: '40px' }}>
             {[
-              { icon: <FaShieldAlt size={22} />, title: 'Genuine Artifact', sub: 'QC Verified' },
-              { icon: <FaTruck size={22} />, title: 'White Glove', sub: 'Express' },
-              { icon: <FaUndo size={22} />, title: 'Elite Returns', sub: '30-Day' },
+              { icon: <FaShieldAlt size={22} />, title: 'Genuine Product', sub: 'Verified' },
+              { icon: <FaTruck size={22} />, title: 'Fast Delivery', sub: 'Express' },
+              { icon: <FaUndo size={22} />, title: 'Returns', sub: '30-Day' },
             ].map((b, i) => (
               <div key={i} style={{ textAlign: 'center' }}>
                 <div style={{ color: 'var(--text-main)', marginBottom: '12px', display: 'flex', justifyContent: 'center' }}>{b.icon}</div>

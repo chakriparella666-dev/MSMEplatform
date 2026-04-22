@@ -52,7 +52,9 @@ export default function Profile() {
       setIsEditing(false)
       alert('Profile image updated successfully!')
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to update image')
+      console.error('Update Error:', err)
+      const msg = err.response?.data?.message || err.message || 'Failed to update image'
+      alert(msg)
     } finally {
       setUpdating(false)
     }
