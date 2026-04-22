@@ -14,14 +14,20 @@ export default function BuyerNavbar({ onSearchChange, onCategoryChange, currentS
   const [cart, setCart] = useState({ items: [] })
   const [isSidebarOpen, setSidebarOpen] = useState(false)
   const [categories, setCategories] = useState([])
+  const [wishlistCount, setWishlistCount] = useState(0)
   const [district, setDistrict] = useState(() => {
-    return localStorage.getItem('user_district') || user?.address?.city || ''
+    return localStorage.getItem('user_district') || user?.district || ''
   })
 
+  // Sync district when user object updates
   useEffect(() => {
-    if (district) {
-      localStorage.setItem('user_district', district);
+    if (user?.district) {
+      setDistrict(user.district);
     }
+  }, [user])
+
+  useEffect(() => {
+    localStorage.setItem('user_district', district);
   }, [district])
 
   const [showLocationModal, setShowLocationModal] = useState(false)
@@ -77,9 +83,18 @@ export default function BuyerNavbar({ onSearchChange, onCategoryChange, currentS
   useEffect(() => {
     fetchCategories()
     fetchCart()
+    fetchWishlistCount()
+    
     const handleCartUpdate = () => fetchCart()
+    const handleWishlistUpdate = () => fetchWishlistCount()
+    
     window.addEventListener('cartUpdated', handleCartUpdate)
-    return () => window.removeEventListener('cartUpdated', handleCartUpdate)
+    window.addEventListener('wishlistUpdated', handleWishlistUpdate)
+    
+    return () => {
+      window.removeEventListener('cartUpdated', handleCartUpdate)
+      window.removeEventListener('wishlistUpdated', handleWishlistUpdate)
+    }
   }, [])
   
   useEffect(() => {
@@ -97,6 +112,14 @@ export default function BuyerNavbar({ onSearchChange, onCategoryChange, currentS
     try {
       const { data } = await axios.get('/api/cart', { withCredentials: true })
       setCart(data.data)
+    } catch (err) { console.error(err) }
+  }
+
+  const fetchWishlistCount = async () => {
+    try {
+      if (!user) return
+      const { data } = await axios.get('/api/user/wishlist', { withCredentials: true })
+      setWishlistCount(data.data.length || 0)
     } catch (err) { console.error(err) }
   }
   
@@ -130,8 +153,8 @@ export default function BuyerNavbar({ onSearchChange, onCategoryChange, currentS
   return (
     <>
       <nav className="buyer-nav" style={{ 
-        background: 'white', 
-        borderBottom: '1px solid var(--border-soft)', 
+        background: '#ffffff', 
+        borderBottom: '1px solid #EAEAEA', 
         height: '80px', 
         padding: '0 40px',
         display: 'flex',
@@ -140,23 +163,23 @@ export default function BuyerNavbar({ onSearchChange, onCategoryChange, currentS
         position: 'sticky',
         top: 0,
         zIndex: 1000,
-        boxShadow: '0 4px 20px rgba(0,0,0,0.02)'
+        boxShadow: '0 10px 30px rgba(0,0,0,0.02)'
       }}>
         <div 
           style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} 
           onClick={handleHomeClick}
         >
-          <div style={{ background: 'var(--text-main)', width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <FaShoppingBag size={18} color="white" />
+          <div style={{ background: 'var(--premium-gradient)', width: '38px', height: '38px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 16px rgba(0,0,0,0.1)' }}>
+            <FaShoppingBag size={16} color="white" />
           </div>
           <span style={{ 
             fontSize: '1.4rem', 
             fontWeight: 800, 
-            color: 'var(--text-main)', 
-            letterSpacing: '-0.8px', 
+            color: '#09090B', 
+            letterSpacing: '-1px', 
             fontFamily: "'Sora', sans-serif" 
           }}>
-            MSME<span style={{ color: 'var(--primary)', fontWeight: 400 }}>Market</span>
+            MSME<span style={{ color: '#71717A', fontWeight: 400 }}>Market</span>
           </span>
         </div>
 
@@ -164,15 +187,17 @@ export default function BuyerNavbar({ onSearchChange, onCategoryChange, currentS
           maxWidth: '500px', 
           flex: 1, 
           margin: '0 40px',
-          background: '#F8FAFC',
-          borderRadius: '12px',
-          border: '1.5px solid var(--border-soft)',
-          transition: 'var(--transition)'
+          background: '#F4F4F5',
+          borderRadius: '14px',
+          border: '1.5px solid #EAEAEA',
+          transition: 'var(--transition)',
+          display: 'flex',
+          alignItems: 'center'
         }}>
           <input 
             type="text" 
             className="nav-search-input" 
-            placeholder="What are you looking for?"
+            placeholder="Search local treasures..."
             value={localSearch}
             onChange={(e) => {
               setLocalSearch(e.target.value)
@@ -183,44 +208,77 @@ export default function BuyerNavbar({ onSearchChange, onCategoryChange, currentS
               background: 'transparent', 
               padding: '12px 20px', 
               fontSize: '0.95rem',
-              color: 'var(--text-main)' 
+              color: '#09090B',
+              border: 'none',
+              outline: 'none',
+              flex: 1
             }}
           />
           <button 
             className="nav-search-btn" 
             onClick={handleSearchCommit} 
-            style={{ background: 'transparent', color: 'var(--text-muted)' }}
+            style={{ background: 'transparent', border: 'none', padding: '0 20px', color: '#71717A', cursor: 'pointer' }}
           >
             <FaSearch size={16} />
           </button>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
           <div 
             style={{ cursor: 'pointer', textAlign: 'center' }}
             onClick={() => setShowLocationModal(true)}
           >
-            <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Delivery to</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--text-main)', fontWeight: 700, fontSize: '0.9rem' }}>
-              <FaMapMarkerAlt size={12} color="var(--primary)" /> {district || 'Set Location'}
+            <div style={{ fontSize: '0.7rem', color: '#71717A', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Delivery to</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#09090B', fontWeight: 700, fontSize: '0.9rem' }}>
+              <FaMapMarkerAlt size={12} color="#09090B" /> {district || 'India'}
             </div>
           </div>
 
           <div 
-            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}
+            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px' }}
             onClick={() => setSidebarOpen(true)}
           >
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600 }}>Welcome</div>
-              <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-main)' }}>{user?.name ? user.name.split(' ')[0] : 'Account'}</div>
+              <div style={{ fontSize: '0.7rem', color: '#71717A', fontWeight: 800, textTransform: 'uppercase' }}>Account</div>
+              <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#09090B' }}>{user?.name ? user.name.split(' ')[0] : 'Sign In'}</div>
             </div>
-            <div style={{ width: '32px', height: '32px', borderRadius: '50%', overflow: 'hidden', background: '#f1f5f9', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: '38px', height: '38px', borderRadius: '50%', overflow: 'hidden', background: '#F4F4F5', border: '1px solid #EAEAEA', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'var(--transition)' }} onMouseEnter={e => e.currentTarget.style.borderColor = '#000'}>
               {user?.avatar ? (
                 <img src={user.avatar} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               ) : (
-                <FaUserCircle size={24} color="#94a3b8" />
+                <FaUserCircle size={28} color="#A1A1AA" />
               )}
             </div>
+          </div>
+
+          <div 
+            onClick={() => navigate('/wishlist')}
+            style={{ 
+              position: 'relative', 
+              cursor: 'pointer',
+              color: '#09090B',
+              padding: '12px',
+              borderRadius: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'var(--transition)'
+            }}
+            onMouseEnter={e => e.currentTarget.style.background = '#F4F4F5'}
+            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+          >
+            <FaHeart size={18} />
+            {wishlistCount > 0 && (
+              <span style={{ 
+                position: 'absolute', top: '4px', right: '4px',
+                background: '#EF4444', color: 'white', borderRadius: '50%', 
+                width: '18px', height: '18px', fontSize: '10px', 
+                display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900,
+                border: '2px solid white'
+              }}>
+                {wishlistCount}
+              </span>
+            )}
           </div>
 
           <div 
@@ -228,32 +286,38 @@ export default function BuyerNavbar({ onSearchChange, onCategoryChange, currentS
             style={{ 
               position: 'relative', 
               cursor: 'pointer',
-              background: 'var(--text-main)',
+              background: 'var(--premium-gradient)',
               color: 'white',
-              padding: '10px 20px',
-              borderRadius: '99px',
+              padding: '12px 24px',
+              borderRadius: '14px',
               display: 'flex',
               alignItems: 'center',
-              gap: '10px',
-              transition: 'var(--transition)'
+              gap: '12px',
+              transition: 'var(--transition)',
+              boxShadow: '0 8px 16px rgba(0,0,0,0.1)'
             }}
-            onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
-            onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+            onMouseEnter={e => {
+              e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.18)'
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.1)'
+            }}
           >
-            <FaShoppingCart size={18} />
+            <FaShoppingCart size={16} />
             <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>Bag</span>
             <span style={{ 
-              background: 'var(--primary)', 
-              color: 'white', 
-              borderRadius: '50%', 
+              background: '#ffffff', 
+              color: '#000000', 
+              borderRadius: '7px', 
               minWidth: '20px', 
               height: '20px', 
               fontSize: '11px', 
               display: 'flex', 
               alignItems: 'center', 
               justifyContent: 'center', 
-              fontWeight: 800,
-              boxShadow: '0 2px 8px rgba(61, 90, 254, 0.4)'
+              fontWeight: 900,
             }}>
               {cart?.items?.reduce((acc, item) => acc + item.quantity, 0) || 0}
             </span>
@@ -326,78 +390,84 @@ export default function BuyerNavbar({ onSearchChange, onCategoryChange, currentS
           willChange: 'transform'
         }}
       >
-        <div style={{ background: 'var(--text-main)', padding: '24px 32px 20px', color: 'white', position: 'relative' }}>
+        <div style={{ background: '#000000', padding: '32px', color: 'white', position: 'relative' }}>
           <button 
             onClick={(e) => { e.stopPropagation(); setSidebarOpen(false); }} 
             style={{ 
-              position: 'absolute', top: '16px', right: '16px', 
-              background: 'rgba(255,255,255,0.08)', border: 'none', 
-              color: 'white', cursor: 'pointer', width: '28px', height: '28px',
+              position: 'absolute', top: '24px', right: '24px', 
+              background: 'rgba(255,255,255,0.1)', border: 'none', 
+              color: 'white', cursor: 'pointer', width: '32px', height: '32px',
               borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              transition: 'all 0.2s ease' 
+              transition: 'var(--transition)' 
             }}
-            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
-            onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
           >
             <FaTimes size={14} />
           </button>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'linear-gradient(135deg, rgba(255,255,255,0.1), transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.1)' }}>
-              <FaUserCircle size={20} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
+            <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <FaUserCircle size={28} />
             </div>
           </div>
-          <div style={{ fontSize: '0.6rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', opacity: 0.5, marginBottom: '2px' }}>Account</div>
-          <div style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: "'Sora', sans-serif" }}>{user?.name || 'Guest User'}</div>
+          <div style={{ fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1.5px', color: '#9CA3AF', marginBottom: '4px' }}>Welcome back</div>
+          <div style={{ fontSize: '1.25rem', fontWeight: 800, fontFamily: "'Sora', sans-serif" }}>{user?.name || 'Guest User'}</div>
         </div>
 
-        <div style={{ padding: '20px 32px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <div style={{ padding: '32px', flex: 1, display: 'flex', flexDirection: 'column', background: '#ffffff' }}>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {[
-              { label: 'Orders', icon: <FaShoppingBag />, path: '/my-orders' },
-              { label: 'My Bag', icon: <FaShoppingCart />, path: '/cart' },
-              { label: 'Wishlist', icon: <FaHeart />, path: '/wishlist' },
-              { label: 'Addresses', icon: <FaMapMarkerAlt />, path: '/addresses' },
-              { label: 'Settings', icon: <FaUserCircle />, path: '/profile' },
+              { label: 'Order History', icon: <FaShoppingBag />, path: '/my-orders' },
+              { label: 'Shopping Bag', icon: <FaShoppingCart />, path: '/cart' },
+              { label: 'Favorites', icon: <FaHeart />, path: '/wishlist' },
+              { label: 'Saved Addresses', icon: <FaMapMarkerAlt />, path: '/addresses' },
+              { label: 'Account Settings', icon: <FaUserCircle />, path: '/profile' },
             ].map(item => (
               <div 
                 key={item.label} 
                 onClick={() => { setSidebarOpen(false); navigate(item.path) }}
                 style={{ 
-                  padding: '12px 0', borderBottom: '1px solid var(--border-soft)', cursor: 'pointer', 
+                  padding: '16px 0', borderBottom: '1px solid #F3F4F6', cursor: 'pointer', 
                   display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
-                  fontWeight: 600, color: 'var(--text-main)', fontSize: '0.85rem'
+                  fontWeight: 700, color: '#374151', fontSize: '0.9rem', transition: 'all 0.2s'
                 }}
+                onMouseEnter={e => e.currentTarget.style.color = '#000'}
+                onMouseLeave={e => e.currentTarget.style.color = '#374151'}
               >
-                <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span style={{ color: 'var(--text-muted)', display: 'flex' }}>{item.icon}</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  <span style={{ color: '#9CA3AF', display: 'flex' }}>{item.icon}</span>
                   {item.label}
                 </span>
-                <FaChevronRight size={8} color="#CBD5E1" />
+                <FaChevronRight size={10} color="#D1D5DB" />
               </div>
             ))}
           </div>
 
-          <div style={{ marginTop: '20px', padding: '16px', borderRadius: '8px', background: '#F8FAFC', border: '1px dashed var(--border)' }}>
-            <h4 style={{ fontSize: '0.8rem', fontWeight: 800, marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <FaExchangeAlt size={10} color="var(--primary)" /> Merchant Mode
+          <div style={{ marginTop: '32px', padding: '24px', borderRadius: '20px', background: '#F9FAFB', border: '2px solid #F3F4F6', boxShadow: '0 8px 20px rgba(0,0,0,0.02)' }}>
+            <h4 style={{ fontSize: '0.85rem', fontWeight: 800, marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '8px', color: '#111827' }}>
+              <FaExchangeAlt size={12} color="#4B5563" /> Business Mode
             </h4>
-            <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '12px' }}>Switch to manage inventory.</p>
+            <p style={{ fontSize: '0.75rem', color: '#6B7280', marginBottom: '16px', lineHeight: 1.4 }}>Manage your shop and fulfill orders with our AI dashboard.</p>
             <button 
               onClick={() => { setSidebarOpen(false); navigate('/seller'); }} 
-              style={{ background: 'var(--primary)', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', width: '100%' }}
+              style={{ background: '#000000', color: 'white', border: 'none', padding: '12px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer', width: '100%', transition: 'var(--transition)' }}
+              onMouseEnter={e => e.currentTarget.style.background = '#2D2D2D'}
+              onMouseLeave={e => e.currentTarget.style.background = '#000'}
             >
-              Go to Seller Hub
+              Seller Hub
             </button>
           </div>
 
-          <div style={{ marginTop: 'auto', paddingTop: '16px' }}>
+          <div style={{ marginTop: 'auto', paddingTop: '24px' }}>
             <button 
               onClick={() => { logout(); setSidebarOpen(false); }}
-              style={{ background: 'none', border: 'none', color: '#EF4444', fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 0' }}
+              style={{ background: 'none', border: 'none', color: '#EF4444', fontSize: '0.9rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 0', transition: 'all 0.2s' }}
+              onMouseEnter={e => e.currentTarget.style.opacity = 0.8}
+              onMouseLeave={e => e.currentTarget.style.opacity = 1}
             >
-              <FaSignOutAlt size={14} /> Sign Out
+              <FaSignOutAlt size={16} /> Logout Securely
             </button>
           </div>
         </div>

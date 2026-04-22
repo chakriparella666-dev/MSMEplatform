@@ -22,11 +22,16 @@ const UserSchema = new mongoose.Schema({
   // Buyer specific fields
   wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
   savedAddresses: [{
+    name: String,
+    phone: String,
+    pincode: String,
+    locality: String,
     street: String,
     city: String,
     state: String,
-    pincode: String,
-    phone: String,
+    landmark: String,
+    altPhone: String,
+    type: { type: String, default: 'Home' },
     isDefault: { type: Boolean, default: false }
   }],
   

@@ -11,6 +11,8 @@ export default function Addresses() {
   const [showForm, setShowForm] = useState(false)
   const [gettingLocation, setGettingLocation] = useState(false)
   const [apiStates, setApiStates] = useState([])
+  const [editingId, setEditingId] = useState(null)
+  const [loading, setLoading] = useState(false)
 
   // Form state
   const [name, setName] = useState('')
@@ -36,16 +38,67 @@ export default function Addresses() {
     } catch (err) { console.error(err) }
   }
 
+  const resetForm = () => {
+      setName('')
+      setPhone('')
+      setPincode('')
+      setLocality('')
+      setStreet('')
+      setCity('')
+      setState('')
+      setLandmark('')
+      setAltPhone('')
+      setType('Home')
+      setEditingId(null)
+  }
+
   const handleSave = async (e) => {
     e.preventDefault()
+    setLoading(true)
     try {
-      const newAddr = { name, phone, pincode, locality, street, city, state, landmark, altPhone, type }
-      await axios.post('/api/user/addresses', newAddr, { withCredentials: true })
+      const addrData = { name, phone, pincode, locality, street, city, state, landmark, altPhone, type }
+      
+      if (editingId) {
+        await axios.put(`/api/user/addresses/${editingId}`, addrData, { withCredentials: true })
+      } else {
+        await axios.post('/api/user/addresses', addrData, { withCredentials: true })
+      }
+      
       setShowForm(false)
+      resetForm()
       fetchAddresses()
     } catch (err) {
       console.error(err)
+      alert('Failed to save address')
+    } finally {
+      setLoading(false)
     }
+  }
+
+  const handleEdit = (addr) => {
+      setName(addr.name || '')
+      setPhone(addr.phone || '')
+      setPincode(addr.pincode || '')
+      setLocality(addr.locality || '')
+      setStreet(addr.street || '')
+      setCity(addr.city || '')
+      setState(addr.state || '')
+      setLandmark(addr.landmark || '')
+      setAltPhone(addr.altPhone || '')
+      setType(addr.type || 'Home')
+      setEditingId(addr._id)
+      setShowForm(true)
+  }
+
+  const handleDelete = async (id) => {
+      if (!window.confirm('Are you sure you want to delete this address?')) return
+      try {
+          await axios.delete(`/api/user/addresses/${id}`, { withCredentials: true })
+          fetchAddresses()
+      } catch (err) {
+          console.error(err)
+          alert('Failed to delete address')
+      }
   }
 
   const handleGetCurrentLocation = () => {
@@ -78,56 +131,54 @@ export default function Addresses() {
   }
 
   return (
-    <div style={{ background: '#f8f9fc', minHeight: '100vh' }}>
+    <div style={{ background: 'var(--background)', minHeight: '100vh', paddingBottom: '80px' }}>
       <BuyerNavbar />
       
-      <div style={{ maxWidth: '1000px', margin: '40px auto', padding: '0 20px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+      <div style={{ maxWidth: '1200px', margin: '60px auto', padding: '0 60px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '60px' }}>
           <div>
-            <h1 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--text-main)' }}>Manage Addresses</h1>
-            <p style={{ color: 'var(--text-muted)', marginTop: '4px' }}>Add or update your delivery locations</p>
+            <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-main)', letterSpacing: '-0.5px', fontFamily: "'Sora', sans-serif" }}>Delivery Ports</h1>
+            <p style={{ color: 'var(--text-muted)', marginTop: '4px', fontWeight: 600, fontSize: '0.75rem' }}>Your curated list of verified delivery destinations</p>
           </div>
           {!showForm && (
             <button 
               className="btn-primary" 
-              onClick={() => setShowForm(true)}
-              style={{ background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))', padding: '12px 24px', display: 'flex', alignItems: 'center', gap: '8px' }}
+              onClick={() => { resetForm(); setShowForm(true); }}
+              style={{ padding: '12px 24px', borderRadius: '12px', fontSize: '0.85rem' }}
             >
-              <FaPlus /> Add New Address
+              <FaPlus size={10} /> ADD NEW PORT
             </button>
           )}
         </div>
 
         {showForm && (
-          <div className="glass-card" style={{ padding: '40px', marginBottom: '40px', position: 'relative', border: '1px solid #e2e8f0' }}>
-            <h2 style={{ fontWeight: 800, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{ background: 'var(--primary)', color: 'white', padding: '8px', borderRadius: '8px', display: 'flex' }}>
-                <FaPlus size={16} />
-              </div>
-              Add a New Address
+          <div style={{ background: 'white', padding: '40px', borderRadius: '32px', marginBottom: '40px', boxShadow: 'var(--shadow)', border: '1px solid var(--border-soft)' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '32px', color: '#111827', fontFamily: "'Sora', sans-serif" }}>
+              {editingId ? 'RECONFIGURE ACCESS' : 'AUTHORIZE NEW PORT'}
             </h2>
             
             <button 
               type="button"
               onClick={handleGetCurrentLocation}
               disabled={gettingLocation}
-              style={{ width: '100%', background: gettingLocation ? '#f1f5f9' : '#EFF6FF', color: '#2563EB', border: '1.5px solid #3B82F6', padding: '14px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', cursor: gettingLocation ? 'default' : 'pointer', fontWeight: 700, marginBottom: '32px', transition: 'all 0.3s' }}
+              style={{ width: '100%', background: '#000', color: '#fff', border: 'none', padding: '20px', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', cursor: gettingLocation ? 'default' : 'pointer', fontWeight: 800, fontSize: '1rem', marginBottom: '48px', transition: 'all 0.3s' }}
             >
-              <FaCrosshairs color="#3B82F6" /> {gettingLocation ? 'Auto-detecting your location...' : 'Use my current location'}
+              <FaCrosshairs /> {gettingLocation ? 'SYNCHRONIZING...' : 'AUTODETECT GEOLOCATION'}
             </button>
 
             <form onSubmit={handleSave}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '24px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', marginBottom: '40px' }}>
                 {[
-                  { label: 'Full Name', val: name, set: setName, ph: 'Enter your name', key: 'name' },
-                  { label: 'Phone Number', val: phone, set: setPhone, ph: '10-digit mobile number', key: 'phone' },
-                  { label: 'Pincode', val: pincode, set: setPincode, ph: '6-digit PIN', key: 'pincode' },
-                  { label: 'Locality', val: locality, set: setLocality, ph: 'e.g. Sector 4, MG Road', key: 'locality' },
+                  { label: 'Recipient Name', val: name, set: setName, ph: 'Full legal name', key: 'name' },
+                  { label: 'Primary Contact', val: phone, set: setPhone, ph: '10-digit mobile', key: 'phone' },
+                  { label: 'Postal Code', val: pincode, set: setPincode, ph: '6-digit PIN', key: 'pincode' },
+                  { label: 'Neighborhood', val: locality, set: setLocality, ph: 'Locality / Area', key: 'locality' },
                 ].map(f => (
                   <div key={f.label}>
-                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: '#475569', marginBottom: '8px', textTransform: 'uppercase' }}>{f.label}</label>
+                    <label style={{ fontSize: '0.75rem', fontWeight: 900, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '12px', display: 'block' }}>{f.label}</label>
                     <input 
                       type="text" 
+                      className="input-field"
                       placeholder={f.ph} 
                       required 
                       value={f.val} 
@@ -137,102 +188,104 @@ export default function Addresses() {
                         if (f.key === 'pincode') val = val.replace(/\D/g, '').slice(0, 6)
                         f.set(val)
                       }} 
-                      style={{ width: '100%', padding: '14px 18px', borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '1rem', outline: 'none', background: '#fcfdfe' }} 
                     />
                   </div>
                 ))}
               </div>
               
-              <div style={{ marginBottom: '24px' }}>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: '#475569', marginBottom: '8px', textTransform: 'uppercase' }}>Street / Area / House No.</label>
+              <div style={{ marginBottom: '40px' }}>
+                <label style={{ fontSize: '0.75rem', fontWeight: 900, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '12px', display: 'block' }}>Logistical Address</label>
                 <textarea 
-                  placeholder="House no., street, locality" required 
+                  className="input-field"
+                  placeholder="Street, Suite, Apartment details" required 
                   value={street} onChange={e => setStreet(e.target.value)}
-                  style={{ width: '100%', padding: '14px 18px', borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '1rem', outline: 'none', minHeight: '100px', resize: 'vertical', background: '#fcfdfe' }} 
+                  style={{ minHeight: '140px', resize: 'none' }} 
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '32px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', marginBottom: '48px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: '#475569', marginBottom: '8px', textTransform: 'uppercase' }}>City / District</label>
-                  <input type="text" placeholder="City" required value={city} onChange={e => setCity(e.target.value)} style={{ width: '100%', padding: '14px 18px', borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '1rem', outline: 'none', background: '#fcfdfe' }} />
+                  <label style={{ fontSize: '0.75rem', fontWeight: 900, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '12px', display: 'block' }}>Metropolis / Town</label>
+                  <input type="text" className="input-field" placeholder="City" required value={city} onChange={e => setCity(e.target.value)} />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: '#475569', marginBottom: '8px', textTransform: 'uppercase' }}>State</label>
-                  <select value={state} onChange={e => setState(e.target.value)} required style={{ width: '100%', padding: '14px 18px', borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '1rem', outline: 'none', backgroundColor: '#fcfdfe' }}>
-                    <option value="">-- Choose State --</option>
+                  <label style={{ fontSize: '0.75rem', fontWeight: 900, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '12px', display: 'block' }}>Federation State</label>
+                  <select className="input-field" value={state} onChange={e => setState(e.target.value)} required>
+                    <option value="">Select State</option>
                     {apiStates.map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: '#475569', marginBottom: '8px', textTransform: 'uppercase' }}>Landmark (Optional)</label>
-                  <input type="text" placeholder="e.g. Near Apollo Hospital" value={landmark} onChange={e => setLandmark(e.target.value)} style={{ width: '100%', padding: '14px 18px', borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '1rem', outline: 'none', background: '#fcfdfe' }} />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: '#475569', marginBottom: '8px', textTransform: 'uppercase' }}>Alternate Phone (Optional)</label>
-                  <input 
-                    type="text" 
-                    placeholder="Second contact number" 
-                    value={altPhone} 
-                    onChange={e => setAltPhone(e.target.value.replace(/\D/g, '').slice(0, 10))} 
-                    style={{ width: '100%', padding: '14px 18px', borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '1rem', outline: 'none', background: '#fcfdfe' }} 
-                  />
-                </div>
               </div>
 
-              <div style={{ marginBottom: '40px' }}>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: '#475569', marginBottom: '16px', textTransform: 'uppercase' }}>Address Type</label>
-                <div style={{ display: 'flex', gap: '16px' }}>
+              <div style={{ marginBottom: '60px' }}>
+                <label style={{ fontSize: '0.75rem', fontWeight: 900, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '20px', display: 'block' }}>Classify Port As</label>
+                <div style={{ display: 'flex', gap: '20px' }}>
                   {['Home', 'Work'].map(t => (
                     <button 
                       key={t}
                       type="button"
                       onClick={() => setType(t)}
-                      style={{ padding: '12px 32px', borderRadius: '12px', border: type === t ? '2px solid var(--primary)' : '1px solid #e2e8f0', background: type === t ? '#eff6ff' : 'white', color: type === t ? 'var(--primary)' : '#64748b', fontWeight: 800, cursor: 'pointer', flex: 1, transition: 'all 0.2s' }}
+                      style={{ 
+                        padding: '20px', borderRadius: '20px', border: '2px solid', 
+                        borderColor: type === t ? '#000' : '#F3F4F6', 
+                        background: type === t ? '#000' : 'white', 
+                        color: type === t ? '#fff' : '#6B7280', 
+                        fontWeight: 800, cursor: 'pointer', flex: 1, transition: 'all 0.3s',
+                        fontSize: '0.9rem'
+                      }}
                     >
-                      {t === 'Home' ? '🏠 Home' : '🏢 Work'}
+                      {t.toUpperCase()} STATION
                     </button>
                   ))}
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: '16px' }}>
-                <button type="submit" className="btn-primary" style={{ flex: 2, padding: '16px', fontWeight: 800, fontSize: '1rem' }}>SAVE ADDRESS</button>
-                <button type="button" onClick={() => setShowForm(false)} className="btn-outline" style={{ flex: 1, padding: '16px', fontWeight: 800 }}>CANCEL</button>
+              <div style={{ display: 'flex', gap: '24px', borderTop: '1px solid #F3F4F6', paddingTop: '48px' }}>
+                <button type="submit" className="btn-primary" disabled={loading} style={{ flex: 2, padding: '24px', borderRadius: '20px', fontSize: '1.1rem' }}>
+                    {loading ? 'SYNCHRONIZING...' : 'CONFIRM AUTHORIZATION'}
+                </button>
+                <button type="button" onClick={() => { setShowForm(false); resetForm(); }} className="btn-outline" style={{ flex: 1, padding: '24px', borderRadius: '20px', fontSize: '1.1rem', color: '#EF4444', borderColor: '#FEE2E2' }}>DISCARD</button>
               </div>
             </form>
           </div>
         )}
 
-        {/* Address List */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(450px, 1fr))', gap: '24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(440px, 1fr))', gap: '40px' }}>
           {(addresses || []).length === 0 && !showForm && (
-            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '80px', background: 'white', borderRadius: '24px', border: '2px dashed #e2e8f0' }}>
-              <FaMapMarkerAlt size={48} color="#cbd5e1" style={{ marginBottom: '16px' }} />
-              <p style={{ color: '#64748b', fontSize: '1.1rem' }}>No addresses saved yet.</p>
+            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '120px 40px', background: 'white', borderRadius: '40px', border: '1px solid #F3F4F6', boxShadow: 'var(--shadow)' }}>
+              <div style={{ background: '#F9FAFB', width: '100px', height: '100px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 32px' }}>
+                <FaMapMarkerAlt size={42} color="#D1D5DB" />
+              </div>
+              <h3 style={{ fontSize: '2rem', color: '#111827', marginBottom: '12px' }}>Port directory is silent</h3>
+              <p style={{ color: '#6B7280', fontSize: '1.1rem' }}>Establish your first delivery coordinate to proceed.</p>
             </div>
           )}
+          
           {(addresses || []).map((addr, idx) => (
-            <div key={addr.id || idx} className="glass-card" style={{ padding: '28px', border: '1px solid #e2e8f0', position: 'relative', background: 'white', transition: 'transform 0.2s' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseLeave={e => e.currentTarget.style.transform = 'none'}>
-              <div style={{ position: 'absolute', right: '20px', top: '20px', color: '#94a3b8', cursor: 'pointer', padding: '8px' }}>
-                <FaEllipsisV />
+            <div key={addr._id || idx} style={{ padding: '48px', background: 'white', border: '1px solid #F3F4F6', borderRadius: '40px', position: 'relative', boxShadow: 'var(--shadow)', transition: 'all 0.3s' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+                <span style={{ background: '#000', color: 'white', fontSize: '0.65rem', fontWeight: 900, padding: '6px 12px', borderRadius: '8px', textTransform: 'uppercase', letterSpacing: '1.5px' }}>{addr.type || 'HOME'}</span>
+                <div style={{ color: '#E5E7EB' }}><FaEllipsisV /></div>
               </div>
               
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '16px' }}>
-                <span style={{ background: '#eff6ff', color: '#1d4ed8', fontSize: '0.7rem', fontWeight: 900, padding: '4px 10px', borderRadius: '6px', textTransform: 'uppercase' }}>{addr.type || 'HOME'}</span>
-                <span style={{ fontWeight: 800, fontSize: '1.1rem', color: 'var(--text-main)' }}>{addr.name}</span>
+              <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '4px', letterSpacing: '-0.5px' }}>{addr.name}</h4>
+              <p style={{ fontWeight: 800, color: 'var(--text-muted)', marginBottom: '12px', fontSize: '0.85rem' }}>{addr.phone}</p>
+              
+              <div style={{ fontSize: '0.85rem', color: 'var(--text-grey)', lineHeight: '1.6', marginBottom: '24px', fontWeight: 500 }}>
+                {addr.street}<br/>
+                {addr.locality}, {addr.city}<br/>
+                {addr.state} — <span style={{ fontWeight: 800, color: 'var(--text-main)' }}>{addr.pincode}</span>
               </div>
               
-              <div style={{ fontSize: '0.95rem', color: '#475569', lineHeight: '1.6', marginBottom: '16px' }}>
-                <div style={{ fontWeight: 600, color: 'var(--text-main)' }}>{addr.phone}</div>
-                <div>{addr.street}</div>
-                <div>{addr.locality}, {addr.city}</div>
-                <div>{addr.state} - <span style={{ fontWeight: 800, color: 'var(--text-main)' }}>{addr.pincode}</span></div>
-              </div>
-              
-              <div style={{ display: 'flex', gap: '12px', borderTop: '1px solid #f1f5f9', paddingTop: '16px' }}>
-                <button style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 700, cursor: 'pointer', fontSize: '0.85rem' }}>EDIT</button>
-                <button style={{ background: 'none', border: 'none', color: '#ef4444', fontWeight: 700, cursor: 'pointer', fontSize: '0.85rem' }}>REMOVE</button>
+              <div style={{ display: 'flex', gap: '24px', borderTop: '1px solid #F3F4F6', paddingTop: '24px' }}>
+                <button 
+                    onClick={() => handleEdit(addr)}
+                    style={{ background: 'none', border: 'none', color: '#111827', fontWeight: 900, cursor: 'pointer', fontSize: '0.75rem', letterSpacing: '0.8px' }}
+                >RECONFIGURE</button>
+                <button 
+                    onClick={() => handleDelete(addr._id)}
+                    style={{ background: 'none', border: 'none', color: '#EF4444', fontWeight: 900, cursor: 'pointer', fontSize: '0.75rem', letterSpacing: '0.8px' }}
+                >DEAUTHORIZE</button>
               </div>
             </div>
           ))}

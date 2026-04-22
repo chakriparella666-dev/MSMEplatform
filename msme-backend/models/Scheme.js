@@ -27,4 +27,8 @@ const schemeSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
+// Add indexes for faster filtering
+schemeSchema.index({ district: 1, category: 1, isActive: 1 });
+schemeSchema.index({ title: 'text', benefit: 'text' });
+
 module.exports = mongoose.model('Scheme', schemeSchema, 'schemes');

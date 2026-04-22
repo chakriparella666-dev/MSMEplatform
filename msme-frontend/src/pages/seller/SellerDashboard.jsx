@@ -229,11 +229,11 @@ function FinanceTab({ stats, onRefresh }) {
 
   return (
     <div className="animate-fade-in" style={{ padding: '0 20px' }}>
-      <header style={{ marginBottom: '48px' }}>
+      <header style={{ marginBottom: '32px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
-            <h1 style={{ fontSize: '2.5rem', fontWeight: 800, fontFamily: "'Sora', sans-serif" }}>Financial Institution Gateway</h1>
-            <p style={{ color: 'var(--text-muted)', fontSize: '1rem' }}>Pre-approved micro-loans and credit facilities based on your marketplace performance.</p>
+            <h1 style={{ fontSize: '1.75rem', fontWeight: 800, fontFamily: "'Sora', sans-serif" }}>Financial Institution Gateway</h1>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Pre-approved micro-loans and credit facilities based on your marketplace performance.</p>
           </div>
           <button className="btn-outline" onClick={onRefresh} style={{ padding: '12px 24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <FaSync /> Refresh Status
@@ -250,8 +250,8 @@ function FinanceTab({ stats, onRefresh }) {
             </p>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase' }}>Financial Status</div>
-            <div style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--text-main)' }}>{stats.totalSales > 0 ? 'ACTIVE' : 'PENDING'}</div>
+            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase' }}>Financial Status</div>
+            <div style={{ fontSize: '1.1rem', fontWeight: 900, color: 'var(--text-main)' }}>{stats.totalSales > 0 ? 'ACTIVE' : 'PENDING'}</div>
           </div>
         </div>
       </div>
@@ -298,8 +298,15 @@ function SchemesTab() {
   const [categoryFilter, setCategoryFilter] = useState('All Categories')
   const [allStates, setAllStates] = useState(['All India'])
   const [successScheme, setSuccessScheme] = useState(null)
-  const [schemes, setSchemes] = useState([])
-  const [loadingSchemes, setLoadingSchemes] = useState(true)
+  
+  // Use cached data for instant initial render
+  const [schemes, setSchemes] = useState(() => {
+    try {
+      const cached = localStorage.getItem('cached_schemes')
+      return cached ? JSON.parse(cached) : []
+    } catch { return [] }
+  })
+  const [loadingSchemes, setLoadingSchemes] = useState(schemes.length === 0)
 
   useEffect(() => {
     fetchStates().then(states => {
@@ -308,11 +315,13 @@ function SchemesTab() {
   }, [])
 
   const fetchSchemes = async () => {
-    setLoadingSchemes(true)
+    // Only show full-page loader if we have no cached data at all
+    if (schemes.length === 0) setLoadingSchemes(true)
     try {
       const url = `/api/schemes?district=${encodeURIComponent(districtFilter)}&category=${encodeURIComponent(categoryFilter)}`
       const { data } = await axios.get(url, { withCredentials: true })
       setSchemes(data.data || [])
+      localStorage.setItem('cached_schemes', JSON.stringify(data.data))
     } catch (err) {
       console.error('Failed to fetch schemes via API', err.response?.data || err.message)
     } finally {
@@ -320,8 +329,14 @@ function SchemesTab() {
     }
   }
 
+  const [applying, setApplying] = useState(null)
   const handleApply = (schemeTitle) => {
-    setSuccessScheme(schemeTitle)
+    setApplying(schemeTitle)
+    setTimeout(() => {
+      setApplying(null)
+      setSuccessScheme(schemeTitle)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }, 800)
   }
 
   useEffect(() => {
@@ -346,9 +361,18 @@ function SchemesTab() {
 
   return (
     <div className="animate-fade-in" style={{ padding: '0 20px' }}>
-      <header style={{ marginBottom: '48px' }}>
-        <h1 style={{ fontSize: '2.5rem', fontWeight: 800, fontFamily: "'Sora', sans-serif" }}>Government Scheme Portal</h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '1rem' }}>Central & State government benefits curated for your business category.</p>
+      <header style={{ marginBottom: '32px' }}>
+        <h1 style={{ fontSize: '1.75rem', fontWeight: 800, fontFamily: "'Sora', sans-serif" }}>Government Scheme Portal</h1>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Central & State government benefits curated for your business category.</p>
+        
+        {successScheme && (
+          <div style={{ background: '#dcfce7', color: '#166534', padding: '16px 24px', borderRadius: '12px', marginTop: '24px', fontWeight: 700, display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid #bbf7d0', animation: 'slideDown 0.4s ease' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <FaCheck size={14} /> Application intent for "{successScheme}" recorded! Our district advisor will contact you soon.
+            </span>
+            <button onClick={() => setSuccessScheme(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontWeight: 900, color: '#166534' }}>✕</button>
+          </div>
+        )}
         
         <div style={{ display: 'flex', gap: '20px', marginTop: '32px' }}>
           <div style={{ position: 'relative', flex: 1 }}>
@@ -395,12 +419,19 @@ function SchemesTab() {
                 <div style={{ padding: '8px 16px', background: '#e0e7ff', color: '#3730a3', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase' }}>{s.district}</div>
                 <FaGavel color="var(--secondary)" />
               </div>
-              <h4 style={{ margin: '0 0 12px 0', fontSize: '1.4rem', fontWeight: 800 }}>{s.title}</h4>
-              <p style={{ fontSize: '1rem', color: 'var(--text-main)', fontWeight: 600, marginBottom: '12px' }}>{s.benefit}</p>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '24px' }}>
+              <h4 style={{ margin: '0 0 8px 0', fontSize: '1.15rem', fontWeight: 800 }}>{s.title}</h4>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-main)', fontWeight: 600, marginBottom: '10px' }}>{s.benefit}</p>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '16px' }}>
                 <strong>Eligibility:</strong> {s.eligible}
               </div>
-              <button className="btn-primary" style={{ width: '100%' }} onClick={() => handleApply(s.title)}>Apply Now</button>
+              <button 
+                className={successScheme === s.title ? "btn-outline" : "btn-primary"} 
+                style={{ width: '100%', fontSize: '0.85rem', padding: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: successScheme === s.title ? '#f0fdf4' : undefined, color: successScheme === s.title ? '#15803d' : undefined, borderColor: successScheme === s.title ? '#bbf7d0' : undefined }} 
+                onClick={() => handleApply(s.title)}
+                disabled={applying === s.title || successScheme === s.title}
+              >
+                {applying === s.title ? <FaSpinner className="spin" /> : successScheme === s.title ? <><FaCheck /> Applied Successfully</> : 'Apply Now'}
+              </button>
             </div>
           ))
         )}
@@ -507,9 +538,9 @@ function LogisticsTab({ user, orders, onRefresh }) {
           onClick={() => setAssignModal(null)}>
           <div style={{ background: 'white', borderRadius: '20px', padding: '40px', width: '90%', maxWidth: '480px', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}
             onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-              <h2 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 800 }}>Assign Carrier</h2>
-              <button onClick={() => setAssignModal(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', color: '#94a3b8' }}>✕</button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800 }}>Assign Carrier</h2>
+              <button onClick={() => setAssignModal(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1rem', color: '#94a3b8' }}>✕</button>
             </div>
 
             <div style={{ background: '#f8fafc', borderRadius: '12px', padding: '16px', marginBottom: '24px', fontSize: '0.9rem' }}>
@@ -566,10 +597,10 @@ function LogisticsTab({ user, orders, onRefresh }) {
       )}
 
       {/* Header */}
-      <header style={{ marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+      <header style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
         <div>
-          <h1 style={{ fontSize: '2.6rem', fontWeight: 800, fontFamily: "'Sora', sans-serif", letterSpacing: '-0.04em', marginBottom: '8px' }}>Logistics Control</h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '1rem' }}>Manage shipments, assign carriers, and track orders in real-time.</p>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 800, fontFamily: "'Sora', sans-serif", letterSpacing: '-0.04em', marginBottom: '6px' }}>Logistics Control</h1>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Manage shipments, assign carriers, and track orders in real-time.</p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#f0fdf4', border: '1px solid #bbf7d0', padding: '10px 18px', borderRadius: '12px' }}>
           <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e' }}></div>
@@ -585,27 +616,15 @@ function LogisticsTab({ user, orders, onRefresh }) {
           { label: 'In Transit',      value: stats.dispatched,color: '#6d28d9', bg: '#f3e8ff', border: '#ddd6fe' },
           { label: 'Delivered',       value: stats.delivered, color: '#15803d', bg: '#f0fdf4', border: '#bbf7d0' },
         ].map((k, i) => (
-          <div key={i} style={{ padding: '28px 24px', borderRadius: '16px', background: k.bg, border: `1.5px solid ${k.border}` }}>
-            <div style={{ fontSize: '2.4rem', fontWeight: 900, color: k.color, lineHeight: 1 }}>{k.value}</div>
-            <div style={{ fontSize: '0.8rem', fontWeight: 700, color: k.color, marginTop: '8px', textTransform: 'uppercase', letterSpacing: '0.5px', opacity: 0.8 }}>{k.label}</div>
+          <div key={i} style={{ padding: '20px 16px', borderRadius: '12px', background: k.bg, border: `1.2px solid ${k.border}` }}>
+            <div style={{ fontSize: '1.6rem', fontWeight: 900, color: k.color, lineHeight: 1 }}>{k.value}</div>
+            <div style={{ fontSize: '0.7rem', fontWeight: 700, color: k.color, marginTop: '6px', textTransform: 'uppercase', letterSpacing: '0.5px', opacity: 0.8 }}>{k.label}</div>
           </div>
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.8fr', gap: '32px', marginBottom: '40px' }}>
-        {/* Active Logistics Integration */}
-        <div className="glass-card" style={{ padding: '28px', background: 'var(--background-alt)', border: '1.5px dashed var(--secondary)' }}>
-          <div style={{ textAlign: 'center', padding: '20px' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '16px' }}>🚀</div>
-            <h3 style={{ margin: '0 0 10px 0', fontSize: '1.2rem', fontWeight: 800 }}>Shiprocket Integration</h3>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '20px' }}>Your primary logistics partner is active. You can generate AWBs and track shipments directly from the orders table.</p>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#f0fdf4', color: '#15803d', padding: '8px 16px', borderRadius: '99px', fontSize: '0.8rem', fontWeight: 700 }}>
-              <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22c55e' }}></div> Connected & Ready
-            </div>
-          </div>
-        </div>
-
-        {/* Real Tracking */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '32px', marginBottom: '40px' }}>
+        {/* Real Tracking - Full Width */}
         <div className="glass-card" style={{ padding: '28px', background: 'white', border: '1px solid var(--border-soft)' }}>
           <h3 style={{ margin: '0 0 20px 0', fontSize: '1.1rem', fontWeight: 800 }}>📦 Track a Shipment</h3>
           <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
@@ -750,15 +769,15 @@ function AnalyticsTab({ forecastData, globalRecommendations, onRefresh }) {
 
   return (
     <div className="animate-fade-in" style={{ padding: '0 20px' }}>
-      <header style={{ marginBottom: '48px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <header style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 800, fontFamily: "'Sora', sans-serif", display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div style={{ background: 'var(--text-main)', padding: '12px', borderRadius: '14px', color: 'white', display: 'flex' }}>
-              <FaRobot size={24} />
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 800, fontFamily: "'Sora', sans-serif", display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ background: 'var(--text-main)', padding: '10px', borderRadius: '12px', color: 'white', display: 'flex' }}>
+              <FaRobot size={20} />
             </div>
             AI Optimization Engine
           </h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '1rem', marginTop: '8px' }}>XGBoost-driven forecasting & Linear Programming for stock optimization.</p>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '6px' }}>XGBoost-driven forecasting & Linear Programming for stock optimization.</p>
         </div>
         <button className="btn-outline" onClick={onRefresh} style={{ padding: '12px 24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <FaSync /> Re-train Model
@@ -766,13 +785,13 @@ function AnalyticsTab({ forecastData, globalRecommendations, onRefresh }) {
       </header>
 
       {/* Global AI Insights */}
-      <div className="glass-card" style={{ padding: '32px', marginBottom: '48px', borderLeft: '8px solid var(--primary)', background: '#f8fafc' }}>
-        <h3 style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <div className="glass-card" style={{ padding: '24px', marginBottom: '32px', borderLeft: '6px solid var(--primary)', background: '#f8fafc' }}>
+        <h3 style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.1rem' }}>
           <FaMagic color="var(--primary)" /> Smart Fleet Recommendations
         </h3>
-        <ul style={{ margin: 0, paddingLeft: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <ul style={{ margin: 0, paddingLeft: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {recs.map((r, i) => (
-            <li key={i} style={{ color: 'var(--text-main)', fontWeight: 600, fontSize: '0.95rem' }}>{r}</li>
+            <li key={i} style={{ color: 'var(--text-main)', fontWeight: 600, fontSize: '0.8rem' }}>{r}</li>
           ))}
         </ul>
       </div>
@@ -822,9 +841,9 @@ function AnalyticsTab({ forecastData, globalRecommendations, onRefresh }) {
                   </div>
                 </div>
 
-                <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '12px', marginBottom: '20px' }}>
-                  <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '8px' }}>AI Recommended Action:</div>
-                  <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-main)', lineHeight: 1.5 }}>"{f.inventory_alert?.action || 'No action needed.'}"</div>
+                <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '10px', marginBottom: '16px' }}>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '6px' }}>AI Recommended Action:</div>
+                  <div style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--text-main)', lineHeight: 1.4 }}>"{f.inventory_alert?.action || 'No action needed.'}"</div>
                 </div>
 
                 <div style={{ marginTop: '16px' }}>
@@ -878,12 +897,12 @@ function SellerSidebar({ activeTab, setActiveTab, logout }) {
 
   ]
   return (
-    <div className="sidebar" style={{ background: 'white', borderRight: '1px solid var(--border-soft)', padding: '48px 0', height: '100vh', position: 'sticky', top: 0, display: 'flex', flexDirection: 'column', overflowY: 'auto', flexShrink: 0 }}>
-      <div className="sidebar-logo" style={{ padding: '0 40px 64px', gap: '16px', display: 'flex', alignItems: 'center' }}>
-        <div style={{ background: 'var(--text-main)', color: 'white', padding: '12px', borderRadius: '14px', boxShadow: '0 8px 20px rgba(0,0,0,0.1)' }}>
-          <FaStore size={22} />
+    <div className="sidebar" style={{ background: 'white', borderRight: '1px solid var(--border-soft)', padding: '32px 0', height: '100vh', position: 'sticky', top: 0, display: 'flex', flexDirection: 'column', overflowY: 'auto', flexShrink: 0 }}>
+      <div className="sidebar-logo" style={{ padding: '0 32px 48px', gap: '12px', display: 'flex', alignItems: 'center' }}>
+        <div style={{ background: 'var(--text-main)', color: 'white', padding: '10px', borderRadius: '12px', boxShadow: '0 6px 15px rgba(0,0,0,0.1)' }}>
+          <FaStore size={18} />
         </div>
-        <span style={{ fontSize: '1.6rem', fontWeight: 800, letterSpacing: '-1.2px', fontFamily: "'Sora', sans-serif", color: 'var(--text-main)' }}>
+        <span style={{ fontSize: '1.3rem', fontWeight: 800, letterSpacing: '-1px', fontFamily: "'Sora', sans-serif", color: 'var(--text-main)' }}>
           Seller<span style={{ color: 'var(--secondary)', fontWeight: 600 }}>Hub</span>
         </span>
       </div>
@@ -894,19 +913,19 @@ function SellerSidebar({ activeTab, setActiveTab, logout }) {
             className={`sidebar-link ${activeTab === t.id ? 'active' : ''}`} 
             onClick={() => setActiveTab(t.id)}
             style={{ 
-              padding: '18px 40px', 
-              fontSize: '1rem', 
+              padding: '14px 32px', 
+              fontSize: '0.85rem', 
               fontWeight: activeTab === t.id ? 700 : 500,
               color: activeTab === t.id ? 'var(--text-main)' : 'var(--text-muted)',
-              borderRight: activeTab === t.id ? '4px solid var(--secondary)' : 'none',
+              borderRight: activeTab === t.id ? '3px solid var(--secondary)' : 'none',
               background: activeTab === t.id ? 'rgba(197, 160, 89, 0.05)' : 'transparent',
               transition: 'var(--transition)',
               display: 'flex',
               alignItems: 'center',
-              gap: '16px'
+              gap: '12px'
             }}
           >
-            <span style={{ opacity: activeTab === t.id ? 1 : 0.6, fontSize: '1.2rem' }}>{t.icon}</span> {t.label}
+            <span style={{ opacity: activeTab === t.id ? 1 : 0.6, fontSize: '1.1rem' }}>{t.icon}</span> {t.label}
           </div>
         ))}
       </nav>
@@ -931,12 +950,12 @@ function OverviewTab({ user, stats, orders, products, onRefresh }) {
   
   return (
     <div className="animate-fade-in" style={{ padding: '0 20px' }}>
-      <header style={{ marginBottom: '64px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+      <header style={{ marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
         <div>
-          <h1 style={{ fontSize: '3.5rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '8px', letterSpacing: '-2px', fontFamily: "'Sora', sans-serif" }}>
+          <h1 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '6px', letterSpacing: '-1px', fontFamily: "'Sora', sans-serif" }}>
             Hello, {user.name.split(' ')[0]}
           </h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '1.2rem', fontWeight: 500 }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 500 }}>
             Performance overview for <strong style={{ color: 'var(--text-main)' }}>{user.businessName}</strong>
           </p>
         </div>
@@ -956,14 +975,14 @@ function OverviewTab({ user, stats, orders, products, onRefresh }) {
           { icon: <OrdersIcon />,    bg: 'var(--text-main)', color: 'white', label: 'Active Orders', value: stats.activeOrders || 0, sub: `${pendingDispNum} pending dispatch` },
           { icon: <InventoryIcon />, bg: 'var(--text-main)', color: 'white', label: 'Stock Items', value: products.length, sub: `${lowStockNum} items low stock` },
         ].map((c, i) => (
-          <div key={i} className="glass-card" style={{ padding: '40px', border: '1px solid var(--border-soft)', background: 'white', position: 'relative', overflow: 'hidden' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
-              <div style={{ fontSize: '1.5rem', color: 'white', background: 'var(--text-main)', padding: '16px', borderRadius: '16px' }}>{c.icon}</div>
-              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: i === 0 ? 'var(--secondary)' : '#64748B' }}>{c.sub}</div>
+          <div key={i} className="glass-card" style={{ padding: '24px', border: '1px solid var(--border-soft)', background: 'white', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+              <div style={{ fontSize: '1.3rem', color: 'white', background: 'var(--text-main)', padding: '12px', borderRadius: '12px' }}>{c.icon}</div>
+              <div style={{ fontSize: '0.65rem', fontWeight: 700, color: i === 0 ? 'var(--secondary)' : '#64748B' }}>{c.sub}</div>
             </div>
             <div>
-              <h6 style={{ color: 'var(--text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 800, marginBottom: '8px' }}>{c.label}</h6>
-              <span style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--text-main)', fontFamily: "'Sora', sans-serif" }}>{c.value}</span>
+              <h6 style={{ color: 'var(--text-muted)', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 800, marginBottom: '6px' }}>{c.label}</h6>
+              <span style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--text-main)', fontFamily: "'Sora', sans-serif" }}>{c.value}</span>
             </div>
           </div>
         ))}
@@ -1083,10 +1102,10 @@ function OverviewTab({ user, stats, orders, products, onRefresh }) {
 function InventoryTab({ products, onAddNew, onEdit, onStockChange, onDelete, onRefresh }) {
   return (
     <div className="animate-fade-in" style={{ padding: '0 20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '48px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
         <div>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 800, fontFamily: "'Sora', sans-serif" }}>Boutique Inventory</h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '1rem' }}>Manage your high-end product collection and stock levels.</p>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 800, fontFamily: "'Sora', sans-serif" }}>Boutique Inventory</h1>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Manage your high-end product collection and stock levels.</p>
         </div>
         <div style={{ display: 'flex', gap: '16px' }}>
           <button className="btn-outline" onClick={onRefresh} style={{ padding: '16px' }}>
@@ -1109,7 +1128,7 @@ function InventoryTab({ products, onAddNew, onEdit, onStockChange, onDelete, onR
               <thead>
                 <tr style={{ background: 'var(--background-alt)', borderBottom: '1px solid var(--border-soft)' }}>
                   {['Product Details', 'Price', 'Status', 'Stock Allocation', 'Actions'].map((h, i) => (
-                    <th key={i} style={{ textAlign: (i === 4) ? 'right' : 'left', padding: '24px 32px', fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 800 }}>{h}</th>
+                    <th key={i} style={{ textAlign: (i === 4) ? 'right' : 'left', padding: '16px 24px', fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 800 }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -1120,22 +1139,22 @@ function InventoryTab({ products, onAddNew, onEdit, onStockChange, onDelete, onR
                     <tr key={p._id} style={{ borderBottom: '1px solid var(--border-soft)', transition: 'var(--transition)', background: isLowStock ? '#fff5f5' : 'transparent' }}>
                       <td style={{ padding: '24px 32px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                          <div style={{ width: '64px', height: '80px', borderRadius: '12px', overflow: 'hidden', background: 'var(--background-alt)', border: '1px solid var(--border-soft)' }}>
+                          <div style={{ width: '48px', height: '60px', borderRadius: '10px', overflow: 'hidden', background: 'var(--background-alt)', border: '1px solid var(--border-soft)' }}>
                             <img src={p.images[0] || 'https://via.placeholder.com/64'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { e.target.src = 'https://via.placeholder.com/64' }} />
                           </div>
                           <div>
-                            <div style={{ fontWeight: 800, fontSize: '1.1rem', color: 'var(--text-main)' }}>{p.name}</div>
-                            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '4px' }}>{p.category}</div>
+                            <div style={{ fontWeight: 800, fontSize: '0.9rem', color: 'var(--text-main)' }}>{p.name}</div>
+                            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '2px' }}>{p.category}</div>
                           </div>
                         </div>
                       </td>
 
-                      <td style={{ padding: '24px 32px' }}>
-                        <div style={{ fontWeight: 800, fontSize: '1.2rem', color: 'var(--text-main)' }}>₹{p.price.toLocaleString()}</div>
+                      <td style={{ padding: '16px 24px' }}>
+                        <div style={{ fontWeight: 800, fontSize: '0.9rem', color: 'var(--text-main)' }}>₹{p.price.toLocaleString()}</div>
                       </td>
                       <td style={{ padding: '24px 32px' }}>
                         <span style={{ 
-                          fontSize: '0.7rem', fontWeight: 800, padding: '4px 10px', borderRadius: '6px',
+                          fontSize: '0.65rem', fontWeight: 800, padding: '4px 10px', borderRadius: '6px',
                           background: p.isActive ? '#dcfce7' : '#f1f5f9',
                           color: p.isActive ? '#166534' : '#64748b',
                           textTransform: 'uppercase'
@@ -1207,10 +1226,10 @@ function OrdersTab({ orders, user, onUpdateStatus, onGenerateWaybill, onRefresh 
           </div>
         : orders.map(order => (
           <div key={order._id} className="glass-card" style={{ marginBottom: '32px', padding: 0, border: '1px solid var(--border-soft)', overflow: 'hidden' }}>
-            <div style={{ padding: '24px 32px', background: 'var(--background-alt)', borderBottom: '1px solid var(--border-soft)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ padding: '20px 24px', background: 'var(--background-alt)', borderBottom: '1px solid var(--border-soft)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Reference #{order._id.slice(-8).toUpperCase()}</div>
-                <div style={{ fontWeight: 800, fontSize: '1.4rem', color: 'var(--text-main)' }}>{order.buyer.name}</div>
+                <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '2px' }}>Reference #{order._id.slice(-8).toUpperCase()}</div>
+                <div style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--text-main)' }}>{order.buyer.name}</div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)' }}>Status</span>
@@ -1261,7 +1280,7 @@ function OrdersTab({ orders, user, onUpdateStatus, onGenerateWaybill, onRefresh 
               </div>
               <div style={{ background: 'var(--background-alt)', padding: '32px', borderRadius: '20px', border: '1px solid var(--border-soft)' }}>
                 <h5 style={{ marginBottom: '20px', fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>Fulfillment Address</h5>
-                <div style={{ display: 'flex', gap: '12px', fontSize: '1rem', lineHeight: 1.6, color: 'var(--text-main)' }}>
+                <div style={{ display: 'flex', gap: '12px', fontSize: '0.9rem', lineHeight: 1.6, color: 'var(--text-main)' }}>
                   <FaMapMarkerAlt color="var(--secondary)" style={{ marginTop: '6px', flexShrink: 0 }} />
                   <div>
                     <strong style={{ display: 'block', marginBottom: '4px' }}>{order.shippingAddress?.name || order.buyer.name}</strong>
@@ -1269,7 +1288,7 @@ function OrdersTab({ orders, user, onUpdateStatus, onGenerateWaybill, onRefresh 
                     {order.shippingAddress?.city}, {order.shippingAddress?.state} – {order.shippingAddress?.pincode}
                   </div>
                 </div>
-                <div style={{ display: 'flex', gap: '12px', marginTop: '20px', fontSize: '1rem', alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: '12px', marginTop: '20px', fontSize: '0.9rem', alignItems: 'center' }}>
                   <FaPhone color="var(--secondary)" /> 
                   <span style={{ fontWeight: 600 }}>{order.shippingAddress?.phone || '—'}</span>
                 </div>
@@ -1300,27 +1319,27 @@ function AccountTab({ user, editProfile, setEditProfile, newBusinessName, setNew
 
   return (
     <div className="animate-fade-in" style={{ padding: '0 20px', maxWidth: '1000px' }}>
-      <header style={{ marginBottom: '48px' }}>
-        <h1 style={{ fontSize: '2.5rem', fontWeight: 800, fontFamily: "'Sora', sans-serif" }}>Hub Settings</h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '1rem' }}>Manage your merchant profile and business identity.</p>
+      <header style={{ marginBottom: '32px' }}>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: "'Sora', sans-serif" }}>Hub Settings</h1>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 600 }}>Manage your merchant profile and business identity.</p>
       </header>
 
       <div className="glass-card" style={{ padding: '56px', border: '1px solid var(--border-soft)' }}>
-        <div style={{ display: 'flex', gap: '40px', alignItems: 'center', marginBottom: '56px' }}>
+        <div style={{ display: 'flex', gap: '32px', alignItems: 'center', marginBottom: '40px' }}>
           <div style={{ 
-            width: '120px', height: '120px', borderRadius: '50%', 
+            width: '80px', height: '80px', borderRadius: '50%', 
             background: 'linear-gradient(135deg, var(--primary), var(--secondary))', 
             color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', 
-            fontSize: '3rem', fontWeight: 800, boxShadow: '0 10px 30px rgba(0,0,0,0.1)'
+            fontSize: '2rem', fontWeight: 800, boxShadow: '0 8px 24px rgba(0,0,0,0.1)'
           }}>
             {user.name.charAt(0)}
           </div>
-          <div style={{ flex: 1 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <h2 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--text-main)', margin: 0 }}>{user.name}</h2>
-              <span style={{ fontSize: '0.75rem', background: '#dcfce7', color: '#166534', padding: '6px 12px', borderRadius: '8px', fontWeight: 900, letterSpacing: '1px' }}>VERIFIED SELLER</span>
+            <div style={{ flex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-main)', margin: 0 }}>{user.name}</h2>
+              <span style={{ fontSize: '0.65rem', background: '#dcfce7', color: '#166534', padding: '4px 10px', borderRadius: '6px', fontWeight: 900, letterSpacing: '1px' }}>VERIFIED SELLER</span>
             </div>
-            <p style={{ color: 'var(--text-muted)', marginTop: '8px', fontSize: '1.1rem' }}>{user.email}</p>
+            <p style={{ color: 'var(--text-muted)', marginTop: '4px', fontSize: '0.85rem', fontWeight: 600 }}>{user.email}</p>
           </div>
           <button 
             className="btn-outline" 
@@ -1360,7 +1379,7 @@ function AccountTab({ user, editProfile, setEditProfile, newBusinessName, setNew
               value={newState} 
               onChange={e => { setNewState(e.target.value); setNewDistrict('') }}
               disabled={!editProfile}
-              style={{ background: editProfile ? 'white' : 'var(--background-alt)', borderRadius: '12px', border: '1.5px solid var(--border-soft)', fontWeight: 700, fontSize: '1.1rem' }}
+              style={{ background: editProfile ? 'white' : 'var(--background-alt)', borderRadius: '12px', border: '1.5px solid var(--border-soft)', fontWeight: 700, fontSize: '0.9rem' }}
             >
               <option value="">Select State</option>
               {allStates.map(s => <option key={s} value={s}>{s}</option>)}
@@ -1374,7 +1393,7 @@ function AccountTab({ user, editProfile, setEditProfile, newBusinessName, setNew
               value={newDistrict} 
               onChange={e => setNewDistrict(e.target.value)}
               disabled={!editProfile || !newState}
-              style={{ background: editProfile ? 'white' : 'var(--background-alt)', borderRadius: '12px', border: '1.5px solid var(--border-soft)', fontWeight: 700, fontSize: '1.1rem' }}
+              style={{ background: editProfile ? 'white' : 'var(--background-alt)', borderRadius: '12px', border: '1.5px solid var(--border-soft)', fontWeight: 700, fontSize: '0.9rem' }}
             >
               <option value="">Select District</option>
               {allDistricts.map(d => <option key={d} value={d}>{d}</option>)}
@@ -1387,7 +1406,7 @@ function AccountTab({ user, editProfile, setEditProfile, newBusinessName, setNew
               className="input-field" 
               value={user.panCardName || '—'} 
               readOnly 
-              style={{ background: 'var(--background-alt)', borderRadius: '12px', border: '1.5px solid var(--border-soft)', fontWeight: 700, fontSize: '1.1rem', color: 'var(--text-muted)' }} 
+              style={{ background: 'var(--background-alt)', borderRadius: '12px', border: '1.5px solid var(--border-soft)', fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-muted)' }} 
             />
           </div>
         </div>
@@ -1582,6 +1601,15 @@ export default function SellerDashboard() {
   const [newBusinessName, setNewBusinessName] = useState(user?.businessName || '')
   const [newDistrict, setNewDistrict] = useState(user?.district || '')
   const [newState, setNewState] = useState(user?.state || '')
+  
+  // Sync local states when user data updates (e.g. after save)
+  useEffect(() => {
+    if (user) {
+      setNewBusinessName(user.businessName || '')
+      setNewDistrict(user.district || '')
+      setNewState(user.state || '')
+    }
+  }, [user])
 
   // Sync profile fields whenever user object updates (e.g. after save)
   useEffect(() => {
@@ -1607,7 +1635,10 @@ export default function SellerDashboard() {
     setLoading(false)
   }
 
-  const isComplete = user?.isProfileComplete || !!user?.businessName
+  console.log('Seller Dashboard User:', user);
+  const [onboardingSkipped, setOnboardingSkipped] = useState(() => localStorage.getItem('onboarding_skipped') === 'true')
+  const isComplete = (user?.isProfileComplete === true) || (!!user?.businessName) || onboardingSkipped;
+  console.log('Seller Dashboard isComplete:', isComplete);
 
   useEffect(() => {
     if (isComplete) {

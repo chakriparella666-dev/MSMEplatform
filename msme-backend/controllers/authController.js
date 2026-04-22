@@ -50,8 +50,8 @@ exports.login = async (req, res) => {
 
 exports.googleCallback = (req, res) => {
   const token = signToken(req.user._id)
-  res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 7*24*60*60*1000 })
-  res.redirect(`${process.env.CLIENT_URL}/dashboard`)
+  res.cookie('token', token, { httpOnly: true, secure: false, sameSite: 'lax', maxAge: 7*24*60*60*1000 })
+  res.redirect(`${process.env.CLIENT_URL}/buyer`)
 }
 
 exports.getMe = async (req, res) => {
@@ -65,7 +65,8 @@ exports.getMe = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
   try {
-    const { businessName, name, panCardName, role, avatar } = req.body
+    console.log('📡 [AUTH] updateProfile request:', req.body);
+    const { businessName, name, panCardName, role, avatar, state, district } = req.body
     
     // Check if business name is already taken by another user
     if (businessName) {
@@ -78,9 +79,23 @@ exports.updateProfile = async (req, res) => {
       }
     }
 
+    const updateData = {};
+    const allowedFields = ['businessName', 'name', 'panCardName', 'role', 'avatar', 'state', 'district', 'isProfileComplete'];
+    
+    allowedFields.forEach(field => {
+      if (req.body[field] !== undefined) {
+        updateData[field] = req.body[field];
+      }
+    });
+
+    // If any of the core business details are provided, mark profile as complete
+    if (updateData.businessName || updateData.state || updateData.district) {
+      updateData.isProfileComplete = true;
+    }
+
     const user = await User.findByIdAndUpdate(
       req.user.id,
-      { businessName, name, panCardName, role, avatar, isProfileComplete: true },
+      { $set: updateData },
       { new: true, runValidators: true }
     )
     res.json({ success: true, user, token: signToken(user._id) })

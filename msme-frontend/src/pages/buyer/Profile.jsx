@@ -5,11 +5,16 @@ import { useAuth } from '../../context/AuthContext'
 import { FaUserEdit, FaEnvelope, FaIdBadge, FaCalendarAlt } from 'react-icons/fa'
 
 export default function Profile() {
-  const { user, setUser } = useAuth()
+  const { user, setUser, refreshUser } = useAuth()
   const [profile, setProfile] = useState(user || {})
   const [isEditing, setIsEditing] = useState(false)
   const [newAvatar, setNewAvatar] = useState('')
   const [updating, setUpdating] = useState(false)
+
+  // Keep local profile in sync with AuthContext
+  useEffect(() => {
+    if (user) setProfile(user)
+  }, [user])
 
   useEffect(() => {
     fetchProfile()
@@ -20,6 +25,8 @@ export default function Profile() {
       const { data } = await axios.get('/api/auth/me', { withCredentials: true })
       setProfile(data.user || {})
       setNewAvatar(data.user?.avatar || '')
+      // Sync the global AuthContext too!
+      if (data.user) setUser(data.user)
     } catch (err) { console.error(err) }
   }
 
@@ -52,22 +59,22 @@ export default function Profile() {
   }
 
   return (
-    <div style={{ background: '#f8f9fc', minHeight: '100vh', paddingBottom: '40px' }}>
+    <div style={{ background: 'var(--background)', minHeight: '100vh', paddingBottom: '60px' }}>
       <BuyerNavbar />
       
-      <div style={{ maxWidth: '800px', margin: '40px auto', padding: '0 20px' }}>
-        <div style={{ background: 'white', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
+      <div style={{ maxWidth: '850px', margin: '60px auto', padding: '0 20px' }}>
+        <div style={{ background: 'white', borderRadius: '32px', boxShadow: 'var(--shadow)', overflow: 'hidden', border: '1px solid var(--border-soft)' }}>
           
-          <div style={{ background: 'linear-gradient(135deg, #1e293b, #334155)', padding: '60px 40px', color: 'white', textAlign: 'center', position: 'relative' }}>
-            <div style={{ position: 'relative', width: '120px', height: '120px', margin: '0 auto 20px' }}>
+          <div style={{ background: '#000000', padding: '60px 40px', color: 'white', textAlign: 'center', position: 'relative' }}>
+            <div style={{ position: 'relative', width: '110px', height: '110px', margin: '0 auto 20px' }}>
               <div style={{ 
                 width: '100%', height: '100%', 
-                background: 'rgba(255,255,255,0.1)', 
+                background: '#111827', 
                 borderRadius: '50%', 
                 display: 'flex', alignItems: 'center', justifyContent: 'center', 
                 fontSize: '3rem', fontWeight: 800,
                 overflow: 'hidden',
-                border: '4px solid rgba(255,255,255,0.2)'
+                border: '4px solid rgba(255,255,255,0.1)'
               }}>
                 {profile.avatar ? (
                   <img src={profile.avatar} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -78,103 +85,115 @@ export default function Profile() {
               <button 
                 onClick={() => setIsEditing(true)}
                 style={{ 
-                  position: 'absolute', bottom: '0', right: '0', 
-                  background: 'var(--primary)', color: 'white', border: 'none', 
-                  width: '36px', height: '36px', borderRadius: '50%', 
+                  position: 'absolute', bottom: '2px', right: '2px', 
+                  background: '#ffffff', color: '#000', border: 'none', 
+                  width: '32px', height: '32px', borderRadius: '50%', 
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  cursor: 'pointer', boxShadow: '0 4px 10px rgba(0,0,0,0.2)'
+                  cursor: 'pointer', boxShadow: '0 6px 12px rgba(0,0,0,0.1)'
                 }}
               >
-                <FaUserEdit size={16} />
+                <FaUserEdit size={14} />
               </button>
             </div>
 
-            <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 800, fontFamily: "'Sora', sans-serif" }}>{profile.name || 'Your Profile'}</h1>
-            <p style={{ margin: '8px 0 0', opacity: 0.7, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', fontSize: '0.75rem' }}>Buyer Account</p>
+            <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 800, fontFamily: "'Sora', sans-serif", letterSpacing: '-1px' }}>{profile.name || 'Member'}</h1>
+            <p style={{ margin: '8px 0 0', opacity: 0.8, fontWeight: 800, letterSpacing: '2px', textTransform: 'uppercase', fontSize: '0.7rem' }}>Premium Account</p>
           </div>
 
           {isEditing && (
-            <div style={{ padding: '24px 40px', background: '#f1f5f9', borderBottom: '1px solid #e2e8f0' }}>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#475569', marginBottom: '12px' }}>UPLOAD NEW PROFILE IMAGE</label>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <div style={{ padding: '32px', background: '#F9FAFB', borderBottom: '1px solid #F3F4F6' }}>
+              <label className="input-label">Update Profile Image</label>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '24px' }}>
                 <div style={{ flex: 1 }}>
-                  <input 
-                    type="file" 
-                    accept="image/*"
-                    onChange={handleFileUpload}
-                    style={{ 
-                      width: '100%', 
-                      padding: '10px', 
-                      background: 'white', 
-                      borderRadius: '8px', 
-                      border: '1.5px dashed #cbd5e1',
-                      fontSize: '0.85rem'
-                    }}
-                  />
-                  <p style={{ margin: '8px 0 0', fontSize: '0.7rem', color: '#64748b' }}>Recommended: Square image, max 2MB</p>
+                  <div style={{ position: 'relative' }}>
+                    <input 
+                      type="file" 
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      style={{ 
+                        opacity: 0, 
+                        position: 'absolute', 
+                        top: 0, left: 0, width: '100%', height: '100%', 
+                        cursor: 'pointer' 
+                      }}
+                    />
+                    <div style={{ padding: '20px', border: '2px dashed #D1D5DB', borderRadius: '12px', textAlign: 'center', background: 'white' }}>
+                      <p style={{ margin: 0, fontSize: '0.85rem', color: '#6B7280', fontWeight: 600 }}>Click to select or drag image</p>
+                    </div>
+                  </div>
+                  <p style={{ margin: '8px 0 0', fontSize: '0.7rem', color: '#9CA3AF', fontWeight: 500 }}>Max size 2MB. Preferred: Square (1:1)</p>
                 </div>
-                <div style={{ display: 'flex', gap: '10px' }}>
+                <div style={{ display: 'flex', gap: '12px' }}>
                   <button 
                     onClick={handleUpdateAvatar}
                     disabled={updating}
-                    style={{ background: 'var(--primary)', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}
+                    className="btn-primary"
+                    style={{ padding: '12px 24px' }}
                   >
-                    {updating ? 'Saving...' : 'Upload & Save'}
+                    {updating ? 'Saving...' : 'Save Profile'}
                   </button>
                   <button 
                     onClick={() => setIsEditing(false)}
-                    style={{ background: 'transparent', color: '#64748b', border: '1.5px solid #cbd5e1', padding: '12px 20px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}
+                    className="btn-outline"
+                    style={{ padding: '12px 24px' }}
                   >
                     Cancel
                   </button>
                 </div>
               </div>
               {newAvatar && newAvatar.startsWith('data:image') && (
-                <div style={{ marginTop: '16px' }}>
-                  <p style={{ fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: '8px' }}>Preview:</p>
-                  <img src={newAvatar} alt="Preview" style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--primary)' }} />
+                <div style={{ marginTop: '20px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <img src={newAvatar} alt="Preview" style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #000' }} />
+                  <div style={{ fontWeight: 800, fontSize: '0.7rem', color: '#000' }}>NEW PREVIEW</div>
                 </div>
               )}
             </div>
           )}
 
-          <div style={{ padding: '40px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div style={{ padding: '40px 40px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
             
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', paddingBottom: '24px', borderBottom: '1px solid #f1f5f9' }}>
-              <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '50%', color: 'var(--primary)', border: '1px solid #e2e8f0' }}><FaIdBadge size={20} /></div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+              <div style={{ width: '48px', height: '48px', background: 'var(--border-soft)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-main)', border: '1px solid var(--border)' }}>
+                <FaIdBadge size={18} />
+              </div>
               <div>
-                <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', marginBottom: '4px', letterSpacing: '0.5px' }}>Full Name</div>
-                <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#1e293b' }}>{profile.name || 'Not provided'}</div>
+                <div style={{ fontSize: '0.65rem', color: 'var(--text-grey)', fontWeight: 800, textTransform: 'uppercase', marginBottom: '4px', letterSpacing: '1px' }}>Account Name</div>
+                <div style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-main)' }}>{profile.name || 'Anonymous'}</div>
               </div>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', paddingBottom: '24px', borderBottom: '1px solid #f1f5f9' }}>
-              <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '50%', color: 'var(--primary)', border: '1px solid #e2e8f0' }}><FaEnvelope size={20} /></div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+              <div style={{ width: '48px', height: '48px', background: 'var(--border-soft)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-main)', border: '1px solid var(--border)' }}>
+                <FaEnvelope size={18} />
+              </div>
               <div>
-                <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', marginBottom: '4px', letterSpacing: '0.5px' }}>Email Address</div>
-                <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#1e293b' }}>{profile.email || 'Not provided'}</div>
+                <div style={{ fontSize: '0.65rem', color: 'var(--text-grey)', fontWeight: 800, textTransform: 'uppercase', marginBottom: '4px', letterSpacing: '1px' }}>Email Contact</div>
+                <div style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-main)' }}>{profile.email || 'Not verified'}</div>
               </div>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
-              <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '50%', color: 'var(--primary)', border: '1px solid #e2e8f0' }}><FaCalendarAlt size={20} /></div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+              <div style={{ width: '48px', height: '48px', background: 'var(--border-soft)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-main)', border: '1px solid var(--border)' }}>
+                <FaCalendarAlt size={18} />
+              </div>
               <div>
-                <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', marginBottom: '4px', letterSpacing: '0.5px' }}>Member Since</div>
-                <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#1e293b' }}>
-                  {profile.createdAt ? new Date(profile.createdAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Recently'}
+                <div style={{ fontSize: '0.65rem', color: 'var(--text-grey)', fontWeight: 800, textTransform: 'uppercase', marginBottom: '4px', letterSpacing: '1px' }}>Join Date</div>
+                <div style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                  {profile.createdAt ? new Date(profile.createdAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Today'}
                 </div>
               </div>
             </div>
 
           </div>
 
-          <div style={{ background: '#f8fafc', padding: '24px 40px', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'flex-end' }}>
-            <button 
+          <div style={{ background: '#F9FAFB', padding: '24px 40px', borderTop: '1px solid #F3F4F6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ fontSize: '0.75rem', color: '#9CA3AF', fontWeight: 600 }}>Manage your personal details and security.</div>
+            {!isEditing && <button 
               onClick={() => setIsEditing(true)}
-              style={{ background: 'var(--text-main)', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+              style={{ background: '#000', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '12px', fontWeight: 800, cursor: 'pointer', fontSize: '0.85rem' }}
             >
-              <FaUserEdit /> Edit Profile
-            </button>
+              Update Details
+            </button>}
           </div>
 
         </div>

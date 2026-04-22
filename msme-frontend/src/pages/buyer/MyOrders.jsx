@@ -38,63 +38,74 @@ export default function MyOrders() {
   )
 
   return (
-    <div style={{ background: '#f8f9fc', minHeight: '100vh' }}>
+    <div style={{ background: 'var(--background)', minHeight: '100vh', paddingBottom: '80px' }}>
       <BuyerNavbar />
       
-      <div style={{ padding: '24px 40px 0', display: 'flex', alignItems: 'center', gap: '16px' }}>
-        <button onClick={() => navigate('/buyer')} style={{ background: 'white', border: '1px solid var(--border)', color: 'var(--text-main)', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700 }}>
-          <FaArrowLeft /> Back to Store
+      <div style={{ padding: '40px 40px 0', display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <button onClick={() => navigate('/buyer')} style={{ background: 'white', border: '1.5px solid var(--border-soft)', color: 'var(--text-main)', padding: '12px 24px', borderRadius: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', fontWeight: 800, fontSize: '0.85rem' }}>
+          <FaArrowLeft size={11} /> BACK TO STORE
         </button>
-        <span style={{ color: '#94a3b8' }}>›</span>
-        <h1 style={{ color: 'var(--primary-dark)', margin: 0, fontWeight: 800, fontSize: '1.5rem' }}>My Orders</h1>
       </div>
 
-      <div style={{ maxWidth: '900px', margin: '32px auto', padding: '0 20px' }}>
+      <div style={{ maxWidth: '1000px', margin: '40px auto', padding: '0 40px' }}>
+        <div style={{ marginBottom: '40px' }}>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-main)', letterSpacing: '-1px', fontFamily: "'Sora', sans-serif" }}>Purchase History</h1>
+          <p style={{ color: 'var(--text-muted)', marginTop: '6px', fontWeight: 600, fontSize: '0.85rem' }}>Review and track your curated acquisitions</p>
+        </div>
+
         {orders.length === 0 ? (
-          <div style={{ background: 'white', borderRadius: '20px', padding: '80px', textAlign: 'center', border: '1px solid #eee' }}>
-            <FaBox size={48} color="#cbd5e1" style={{ marginBottom: '16px' }} />
-            <h2 style={{ color: '#475569' }}>No orders yet</h2>
-            <button className="btn-primary" style={{ marginTop: '20px' }} onClick={() => navigate('/buyer')}>Start Shopping</button>
+          <div style={{ background: 'white', borderRadius: '40px', padding: '120px 40px', textAlign: 'center', border: '1px solid #F3F4F6', boxShadow: 'var(--shadow)' }}>
+            <div style={{ background: '#F9FAFB', width: '100px', height: '100px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 32px' }}>
+              <FaBox size={42} color="#D1D5DB" />
+            </div>
+            <h2 style={{ fontSize: '1.5rem', color: '#111827', marginBottom: '8px' }}>No orders yet</h2>
+            <p style={{ color: '#6B7280', fontSize: '0.85rem', marginBottom: '24px' }}>Your purchase history will appear here once you place an order.</p>
+            <button className="btn-primary" style={{ padding: '14px 32px', borderRadius: '12px', fontSize: '0.85rem' }} onClick={() => navigate('/buyer')}>Start Shopping</button>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
             {orders.map(order => (
-              <div key={order._id} style={{ background: 'white', borderRadius: '20px', border: '1px solid #eee', overflow: 'hidden' }}>
+              <div key={order._id} style={{ background: 'white', borderRadius: '32px', border: '1px solid #F3F4F6', overflow: 'hidden', boxShadow: 'var(--shadow)' }}>
                 {/* Order Header */}
-                <div style={{ padding: '20px 28px', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fafafa' }}>
-                  <div>
-                    <span style={{ fontSize: '0.8rem', color: '#64748b' }}>ORDER ID </span>
-                    <span style={{ fontWeight: 800, color: 'var(--primary)' }}>#{order._id.slice(-8).toUpperCase()}</span>
+                <div style={{ padding: '24px 32px', background: '#F9FAFB', borderBottom: '1px solid var(--border-soft)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', gap: '40px' }}>
+                    <div>
+                      <div style={{ fontSize: '0.65rem', color: 'var(--text-grey)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Order Identifier</div>
+                      <div style={{ fontWeight: 800, color: 'var(--text-main)', fontSize: '0.85rem' }}>#{order._id.slice(-8).toUpperCase()}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.65rem', color: 'var(--text-grey)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Placement Date</div>
+                      <div style={{ fontWeight: 800, color: 'var(--text-main)', fontSize: '0.85rem' }}>{new Date(order.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
+                    </div>
                   </div>
-                  <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                    <span style={{ fontSize: '0.85rem', color: '#64748b' }}>{new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
-                    <span style={{ ...statusColor[order.status], padding: '4px 14px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 800, background: statusColor[order.status]?.bg, color: statusColor[order.status]?.text }}>
-                      {order.status}
-                    </span>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: '0.65rem', color: 'var(--text-grey)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Total Investment</div>
+                    <div style={{ fontWeight: 900, color: 'var(--text-main)', fontSize: '1.1rem', letterSpacing: '-0.5px' }}>₹{order.totalAmount?.toLocaleString()}</div>
                   </div>
                 </div>
 
                 {/* Products */}
-                <div style={{ padding: '20px 28px' }}>
+                <div style={{ padding: '40px' }}>
                   {order.products.map((item, i) => (
-                    <div key={i} style={{ display: 'flex', gap: '16px', paddingBottom: '16px', marginBottom: i < order.products.length - 1 ? '16px' : 0, borderBottom: i < order.products.length - 1 ? '1px dashed #eee' : 'none' }}>
-                      <img
-                        src={item.product?.images?.[0] || 'https://via.placeholder.com/72'}
-                        style={{ width: '72px', height: '72px', objectFit: 'contain', borderRadius: '10px', background: '#f8fafc', border: '1px solid #eee' }}
-                        onError={e => e.target.src = 'https://via.placeholder.com/72'}
-                      />
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: 700, marginBottom: '4px' }}>{item.product?.name || 'Product'}</div>
-                        <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Size: {item.size} | Qty: {item.quantity}</div>
-                        <div style={{ fontWeight: 800, marginTop: '8px' }}>₹{((item.price || item.product?.price || 5999) * item.quantity).toLocaleString()}</div>
+                    <div key={i} style={{ display: 'flex', gap: '32px', paddingBottom: '32px', marginBottom: i < order.products.length - 1 ? '32px' : 0, borderBottom: i < order.products.length - 1 ? '1.5px dashed var(--border-soft)' : 'none' }}>
+                      <div style={{ width: '100px', height: '120px', background: 'var(--background)', borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--border-soft)' }}>
+                        <img
+                          src={item.product?.images?.[0] || 'https://via.placeholder.com/200'}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
+                      </div>
+                      <div style={{ flex: 1, padding: '8px 0' }}>
+                        <div style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--text-main)', marginBottom: '6px' }}>{item.product?.name || 'Artifact'}</div>
+                        <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>Size: {item.size} • Qty: {item.quantity}</div>
+                        <div style={{ fontWeight: 900, marginTop: '12px', fontSize: '1.1rem', color: 'var(--text-main)', letterSpacing: '-0.4px' }}>₹{((item.price || item.product?.price || 5999) * item.quantity).toLocaleString()}</div>
                       </div>
                     </div>
                   ))}
                 </div>
 
                 {/* Tracking */}
-                <div style={{ padding: '20px 28px', background: '#fafafa', borderTop: '1px solid #eee' }}>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#374151', marginBottom: '16px' }}>Order Tracking</div>
+                <div style={{ padding: '32px 40px', background: '#F9FAFB', borderTop: '1px solid #F3F4F6' }}>
+                  <div style={{ fontSize: '0.7rem', fontWeight: 900, color: '#111827', marginBottom: '24px', letterSpacing: '1.2px', textTransform: 'uppercase' }}>Shipment Progress</div>
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0' }}>
                     {statusSteps.map((s, i) => {
                       const currentIdx = statusSteps.indexOf(order.status)
@@ -103,12 +114,12 @@ export default function MyOrders() {
                       return (
                         <div key={s} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
                           {i < statusSteps.length - 1 && (
-                            <div style={{ position: 'absolute', top: '16px', right: '-50%', width: '100%', height: '2px', background: isDone && i < currentIdx ? 'var(--primary)' : '#e2e8f0', zIndex: 0 }}></div>
+                            <div style={{ position: 'absolute', top: '20px', right: '-50%', width: '100%', height: '2px', background: isDone && i < currentIdx ? '#000' : '#E5E7EB', zIndex: 0 }}></div>
                           )}
-                          <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: isDone ? 'var(--primary)' : '#e2e8f0', color: isDone ? 'white' : '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1, fontSize: '0.875rem', border: isCurrent ? '3px solid #bfdbfe' : 'none' }}>
+                          <div style={{ width: '40px', height: '40px', borderRadius: '14px', background: isDone ? '#000' : 'white', color: isDone ? 'white' : '#9CA3AF', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1, fontSize: '0.9rem', border: isCurrent ? '4px solid rgba(0,0,0,0.05)' : '1px solid #E5E7EB', transition: 'all 0.3s' }}>
                             {statusIcon[s]}
                           </div>
-                          <div style={{ fontSize: '0.7rem', fontWeight: isCurrent ? 800 : 600, color: isDone ? 'var(--primary)' : '#94a3b8', marginTop: '8px', textAlign: 'center' }}>{s}</div>
+                          <div style={{ fontSize: '0.65rem', fontWeight: isCurrent ? 800 : 600, color: isDone ? '#000' : '#9CA3AF', marginTop: '12px', textAlign: 'center', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{s}</div>
                         </div>
                       )
                     })}
@@ -116,16 +127,16 @@ export default function MyOrders() {
                 </div>
 
                 {/* Delivery Address & Total */}
-                <div style={{ padding: '16px 28px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div style={{ padding: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                   <div>
-                    <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Delivering to</div>
-                    <div style={{ fontWeight: 700 }}>{order.shippingAddress?.name}</div>
-                    <div style={{ fontSize: '0.85rem', color: '#475569' }}>{order.shippingAddress?.street}, {order.shippingAddress?.city} - {order.shippingAddress?.pincode}</div>
-                    <div style={{ fontSize: '0.85rem', color: '#475569' }}>{order.shippingAddress?.phone}</div>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-grey)', textTransform: 'uppercase', marginBottom: '12px', letterSpacing: '1.5px' }}>Recipient & Destination</div>
+                    <div style={{ fontWeight: 800, fontSize: '1.1rem', color: 'var(--text-main)' }}>{order.shippingAddress?.name}</div>
+                    <div style={{ fontSize: '1rem', color: 'var(--text-muted)', marginTop: '6px', fontWeight: 500 }}>{order.shippingAddress?.street}, {order.shippingAddress?.city} - {order.shippingAddress?.pincode}</div>
+                    <div style={{ fontSize: '1rem', color: 'var(--text-muted)', fontWeight: 500 }}>{order.shippingAddress?.phone}</div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Order Total</div>
-                    <div style={{ fontWeight: 900, fontSize: '1.25rem' }}>₹{order.totalAmount?.toLocaleString()}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-grey)', fontWeight: 800, letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: '10px' }}>AUTHORIZED TOTAL</div>
+                    <div style={{ fontWeight: 900, fontSize: '2rem', color: 'var(--text-main)', letterSpacing: '-1.5px', fontFamily: "'Sora', sans-serif" }}>₹{order.totalAmount?.toLocaleString()}</div>
                   </div>
                 </div>
               </div>

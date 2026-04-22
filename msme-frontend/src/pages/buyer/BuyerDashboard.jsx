@@ -3,7 +3,7 @@ import { useAuth } from '../../context/AuthContext'
 import axios from 'axios'
 import {
   FaSearch, FaShoppingCart, FaUserCircle, FaBars, FaChevronLeft, FaChevronRight,
-  FaMapMarkerAlt, FaStar, FaShoppingBag, FaTimes, FaExchangeAlt, FaHeart, FaRegHeart
+  FaMapMarkerAlt, FaStar, FaShoppingBag, FaTimes, FaExchangeAlt, FaHeart, FaRegHeart, FaStore
 } from 'react-icons/fa'
 import { useNavigate } from 'react-router-dom'
 import BuyerNavbar from '../../components/BuyerNavbar'
@@ -12,130 +12,94 @@ const ProductCard = ({ p, handleAddToCart, wishlistIds = [], toggleWishlist }) =
   const [currentImg, setCurrentImg] = useState(0)
   const navigate = useNavigate()
 
-  const nextImg = (e) => {
-    e.stopPropagation()
-    setCurrentImg((prev) => (prev + 1) % p.images.length)
-  }
-
-  const prevImg = (e) => {
-    e.stopPropagation()
-    setCurrentImg((prev) => (prev - 1 + p.images.length) % p.images.length)
-  }
-
   return (
     <div
-      className="glass-card"
+      className="product-card-premium"
       onClick={() => navigate(`/product/${p._id}`)}
       style={{ 
         padding: '0', 
-        background: 'white', 
+        background: '#ffffff', 
         overflow: 'hidden', 
-        border: 'none', 
         display: 'flex', 
         flexDirection: 'column', 
         cursor: 'pointer', 
         position: 'relative',
-        borderRadius: 'var(--radius)'
+        borderRadius: '24px',
+        border: '1px solid #F3F4F6',
+        transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
+      }}
+      onMouseEnter={e => {
+        e.currentTarget.style.transform = 'translateY(-8px)'
+        e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.08)'
+        e.currentTarget.style.borderColor = '#000'
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.transform = 'translateY(0)'
+        e.currentTarget.style.boxShadow = 'none'
+        e.currentTarget.style.borderColor = '#F3F4F6'
       }}
     >
       <div
         onClick={(e) => { e.stopPropagation(); toggleWishlist(p._id) }}
         style={{ 
           position: 'absolute', 
-          top: '16px', 
-          right: '16px', 
+          top: '20px', 
+          right: '20px', 
           zIndex: 10, 
-          background: 'rgba(255,255,255,0.9)', 
-          borderRadius: '50%', 
-          padding: '10px', 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center', 
-          boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-          transition: 'var(--transition)'
+          cursor: 'pointer',
+          transition: 'all 0.2s'
         }}
         onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
         onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
       >
-        {wishlistIds.includes(p._id) ? <FaHeart color="#ef4444" size={18} /> : <FaRegHeart color="#0f172a" size={18} />}
+        {wishlistIds.includes(p._id) ? <FaHeart color="#000" size={18} /> : <FaRegHeart color="#9CA3AF" size={18} />}
       </div>
       
-      <div style={{ height: '300px', background: '#f8fafc', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ height: '260px', background: '#F9FAFB', position: 'relative', overflow: 'hidden' }}>
         <img
           src={p.images[currentImg] || 'https://via.placeholder.com/400?text=No+Image'}
-          style={{ width: '100%', height: '100%', objectFit: 'contain', transition: 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)' }}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 1.2s cubic-bezier(0.16, 1, 0.3, 1)' }}
           alt={p.name}
-          onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
-          onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
           onError={(e) => { e.target.src = 'https://via.placeholder.com/400?text=Image+Load+Error' }}
         />
 
-        {p.images.length > 1 && (
-          <div style={{ position: 'absolute', bottom: '16px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '6px', background: 'rgba(255,255,255,0.2)', padding: '6px 10px', borderRadius: '20px', backdropFilter: 'blur(4px)' }}>
-            {p.images.map((_, i) => (
-              <div key={i} style={{ width: '6px', height: '6px', borderRadius: '50%', background: i === currentImg ? 'white' : 'rgba(255,255,255,0.5)', transition: 'var(--transition)' }}></div>
-            ))}
-          </div>
-        )}
-
         {p.totalStock === 0 && (
-          <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.4)', backdropFilter: 'blur(2px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2 }}>
-            <span style={{ background: '#0f172a', color: 'white', padding: '10px 24px', borderRadius: '4px', fontWeight: 700, fontSize: '0.75rem', letterSpacing: '1.5px', textTransform: 'uppercase' }}>OUT OF STOCK</span>
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2 }}>
+            <span style={{ background: '#000', color: 'white', padding: '10px 20px', borderRadius: '10px', fontWeight: 800, fontSize: '0.65rem', letterSpacing: '2px' }}>SOLD OUT</span>
           </div>
         )}
       </div>
 
       <div style={{ padding: '24px', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-        <div style={{ color: 'var(--text-muted)', fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>{p.category}</div>
-        <h4 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '12px', minHeight: '48px', lineHeight: 1.4, color: 'var(--text-main)' }}>{p.name}</h4>
+        <div style={{ color: '#71717A', fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1.2px', marginBottom: '6px' }}>{p.category}</div>
+        <h4 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '4px', lineHeight: 1.3, color: '#09090B', fontFamily: "'Sora', sans-serif" }}>{p.name}</h4>
+        <div style={{ fontSize: '0.7rem', color: 'var(--secondary)', fontWeight: 700, marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <FaStore size={10} /> {p.seller?.businessName || 'MSME Merchant'}
+        </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px' }}>
-          <div style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-main)' }}>₹{p.price.toLocaleString()}</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <FaStar color="#FFB800" size={12} />
-            <span style={{ fontWeight: 600, fontSize: '0.8rem', color: 'var(--text-main)' }}>{p.rating || '4.8'}</span>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto' }}>
+          <div>
+            <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#09090B', letterSpacing: '-0.5px' }}>₹{p.price.toLocaleString()}</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '4px' }}>
+              <FaStar color="#111111" size={10} />
+              <span style={{ fontWeight: 800, fontSize: '0.75rem', color: '#09090B' }}>{p.rating || '4.8'}</span>
+            </div>
           </div>
         </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-          <FaMapMarkerAlt size={12} color="var(--secondary)" />
-          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)' }}>{p.district || 'All India'}</span>
-          {p.isLocal && (
-            <span style={{ fontSize: '0.65rem', background: '#dcfce7', color: '#166534', padding: '2px 8px', borderRadius: '4px', fontWeight: 900 }}>LOCAL</span>
-          )}
-        </div>
-
-        <div style={{ marginTop: 'auto' }}>
-          <button
-            className="btn-primary"
-            style={{ width: '100%', borderRadius: '8px' }}
-            onClick={(e) => { 
-              e.stopPropagation(); 
-              if (p.totalStock === 0) {
-                alert(`Notify Me: Success!\n\nWe will email you at ${user?.email || 'your email'} once "${p.name}" is back in stock.`);
-              } else {
-                navigate(`/product/${p._id}`);
-              }
-            }}
-          >
-            {p.totalStock === 0 ? 'Notify Me' : 'Buy Now'}
-          </button>
-        </div>
-
       </div>
     </div>
   )
 }
 
 const ProductSkeleton = () => (
-  <div className="glass-card" style={{ padding: '0', background: 'white', overflow: 'hidden', border: 'none' }}>
+  <div style={{ background: 'white', borderRadius: '24px', overflow: 'hidden', border: '1px solid #F3F4F6' }}>
     <div className="skeleton" style={{ height: '340px', width: '100%', borderRadius: 0 }}></div>
-    <div style={{ padding: '24px', flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
-      <div className="skeleton" style={{ height: '12px', width: '30%' }}></div>
+    <div style={{ padding: '28px', flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div className="skeleton" style={{ height: '10px', width: '30%' }}></div>
       <div className="skeleton" style={{ height: '24px', width: '80%' }}></div>
-      <div className="skeleton" style={{ height: '18px', width: '40%' }}></div>
-      <div style={{ marginTop: '20px' }}>
-        <div className="skeleton" style={{ height: '44px', width: '100%', borderRadius: '8px' }}></div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
+        <div className="skeleton" style={{ height: '32px', width: '40%' }}></div>
+        <div className="skeleton" style={{ height: '48px', width: '48px', borderRadius: '16px' }}></div>
       </div>
     </div>
   </div>
@@ -161,6 +125,10 @@ export default function BuyerDashboard() {
   useEffect(() => {
     fetchProducts()
     fetchWishlist()
+    // Listen for global wishlist updates
+    const handleWishlistUpdate = () => fetchWishlist()
+    window.addEventListener('wishlistUpdated', handleWishlistUpdate)
+    return () => window.removeEventListener('wishlistUpdated', handleWishlistUpdate)
   }, [search, category])
 
   const requestCounter = useRef(0)
@@ -212,11 +180,17 @@ export default function BuyerDashboard() {
     try {
       if (!user) return alert('Please sign in to add to wishlist')
       await axios.post('/api/user/wishlist/toggle', { productId }, { withCredentials: true })
+      
+      // Update local state immediately for snappy feel
       setWishlistIds(prev =>
         prev.includes(productId) ? prev.filter(id => id !== productId) : [...prev, productId]
       )
+      
+      // Dispatch event so other components (like navbar) can update if needed
+      window.dispatchEvent(new Event('wishlistUpdated'))
     } catch (err) {
       console.error(err)
+      alert('Could not update wishlist. Please try again.')
     }
   }
 
@@ -227,34 +201,113 @@ export default function BuyerDashboard() {
         onCategoryChange={setCategory}
         currentSearch={search}
         currentCategory={category}
+        user={user}
       />
 
-      {/* Main Content Area */}
-      <main style={{ maxWidth: '1400px', margin: '40px auto', padding: '0 20px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
+      <main style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 40px 60px' }}>
+        
+        {/* Horizontal Scroll Banners / Featured Products */}
+        {!search && category === 'All' && products.length > 0 && (
+          <section style={{ padding: '40px 0 60px' }}>
+             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+               <div>
+                 <h3 style={{ fontSize: '1.25rem', fontWeight: 800, fontFamily: "'Sora', sans-serif", letterSpacing: '-0.5px' }}>Featured Boutique Gems</h3>
+                 <p style={{ color: '#71717A', fontSize: '0.85rem', fontWeight: 500, marginTop: '4px' }}>Handpicked treasures from local MSME hubs</p>
+               </div>
+               <div style={{ display: 'flex', gap: '8px' }}>
+                 <button onClick={() => { document.getElementById('featured-scroll').scrollBy({ left: -400, behavior: 'smooth' }) }} 
+                   style={{ width: '44px', height: '44px', borderRadius: '50%', border: '1px solid #E2E8F0', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}><FaChevronLeft /></button>
+                 <button onClick={() => { document.getElementById('featured-scroll').scrollBy({ left: 400, behavior: 'smooth' }) }}
+                   style={{ width: '44px', height: '44px', borderRadius: '50%', border: '1px solid #E2E8F0', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}><FaChevronRight /></button>
+               </div>
+             </div>
+
+             <div 
+               id="featured-scroll"
+               style={{ 
+                 display: 'flex', 
+                 gap: '24px', 
+                 overflowX: 'auto', 
+                 paddingBottom: '20px', 
+                 scrollbarWidth: 'none',
+                 msOverflowStyle: 'none',
+                 scrollSnapType: 'x mandatory'
+               }}
+             >
+               {products.slice(0, 8).map(p => (
+                 <div 
+                   key={`featured-${p._id}`}
+                   onClick={() => navigate(`/product/${p._id}`)}
+                   style={{ 
+                     minWidth: '580px', 
+                     height: '340px', 
+                     borderRadius: '32px', 
+                     background: 'linear-gradient(135deg, #09090B 0%, #27272A 100%)',
+                     position: 'relative',
+                     overflow: 'hidden',
+                     cursor: 'pointer',
+                     scrollSnapAlign: 'start',
+                     transition: 'transform 0.3s'
+                   }}
+                   onMouseEnter={e => e.currentTarget.style.transform = 'scale(0.99)'}
+                   onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                 >
+                    {/* Decorative Background */}
+                    <div style={{ position: 'absolute', top: '-100px', right: '-100px', width: '300px', height: '300px', background: 'rgba(255,255,255,0.03)', borderRadius: '50%' }}></div>
+                    <div style={{ position: 'absolute', bottom: '-50px', left: '-50px', width: '200px', height: '200px', background: 'rgba(255,255,255,0.03)', borderRadius: '50%' }}></div>
+
+                    <div style={{ padding: '48px', height: '100%', display: 'flex', alignItems: 'center', gap: '32px', position: 'relative', zIndex: 2 }}>
+                       <div style={{ flex: 1 }}>
+                          <h2 style={{ color: 'white', fontSize: '2.2rem', fontWeight: 900, margin: '0 0 12px', letterSpacing: '-1px', lineHeight: 1.1 }}>{p.name}</h2>
+                          <div style={{ color: '#EAB308', fontSize: '0.95rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                             <FaStore size={14} /> {p.seller?.businessName || 'Authentic MSME'}
+                          </div>
+                          <p style={{ color: '#A1A1AA', fontSize: '0.9rem', marginBottom: '24px', fontWeight: 500, lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{p.description}</p>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                             <div style={{ color: 'white', fontSize: '1.75rem', fontWeight: 900 }}>₹{p.price.toLocaleString()}</div>
+                             <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#3F3F46' }}></div>
+                             <div style={{ color: '#A1A1AA', fontSize: '0.85rem', fontWeight: 700 }}>Exclusive Collection</div>
+                          </div>
+                       </div>
+                       <div style={{ width: '220px', height: '220px', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 20px 50px rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                          <img src={p.images[0]} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={p.name} />
+                       </div>
+                    </div>
+                 </div>
+               ))}
+             </div>
+          </section>
+        )}
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '40px' }}>
           <div>
-            <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-main)' }}>
-              {category === 'All' ? (search ? `Results for "${search}"` : 'Our Best Collection') : `Latest in ${category}`}
+            <h2 style={{ fontSize: '2rem', fontWeight: 800, color: '#09090B', letterSpacing: '-1.5px', fontFamily: "'Sora', sans-serif" }}>
+              {category === 'All' ? (search ? `Results for "${search}"` : 'Curated Essentials') : category}
             </h2>
             {(!loading || products.length > 0) && (
-              <p style={{ color: 'var(--text-muted)' }}>Found {products.length} products curated for you.</p>
+              <p style={{ color: '#52525B', fontSize: '0.9rem', marginTop: '8px', fontWeight: 500 }}>
+                Showing {products.length} exquisite pieces found for you
+              </p>
             )}
           </div>
-
         </div>
 
 
         {loading && products.length === 0 ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '32px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px' }}>
             {[1, 2, 3, 4, 5, 6, 7, 8].map(i => <ProductSkeleton key={i} />)}
           </div>
         ) : products.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '80px', background: 'white', borderRadius: '20px', border: '2px dashed var(--border)' }}>
-            <p style={{ fontSize: '1.25rem', color: 'var(--text-muted)' }}>No matches found in {category}.</p>
-            <button className="btn-outline" style={{ marginTop: '20px' }} onClick={() => { setCategory('All'); setSearch(''); }}>Back to Home</button>
+          <div style={{ textAlign: 'center', padding: '80px 40px', background: 'white', borderRadius: '32px', border: '1px solid #F3F4F6' }}>
+            <div style={{ background: '#F9FAFB', width: '80px', height: '80px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
+              <FaShoppingBag size={32} color="#D1D5DB" />
+            </div>
+            <h3 style={{ fontSize: '1.5rem', color: '#111827', marginBottom: '8px', fontWeight: 800 }}>No treasures found</h3>
+            <p style={{ color: '#6B7280', fontSize: '0.85rem', marginBottom: '24px', fontWeight: 500 }}>Try adjusting your search or filters to find what you're looking for.</p>
+            <button className="btn-primary" style={{ padding: '14px 36px', borderRadius: '12px', fontSize: '0.85rem' }} onClick={() => { setCategory('All'); setSearch(''); }}>Clear All Filters</button>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '32px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px' }}>
             {products.map(p => (
               <ProductCard 
                 key={p._id} 
@@ -264,11 +317,9 @@ export default function BuyerDashboard() {
                 toggleWishlist={toggleWishlist} 
               />
             ))}
-
           </div>
         )}
       </main>
-
     </div>
   )
 }

@@ -66,3 +66,45 @@ exports.getAddresses = async (req, res) => {
     res.status(500).json({ success: false, message: err.message })
   }
 }
+
+exports.updateAddress = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id)
+    const addressId = req.params.id
+    
+    const addressIndex = user.savedAddresses.findIndex(addr => addr._id.toString() === addressId)
+    if (addressIndex === -1) {
+      return res.status(404).json({ success: false, message: 'Address not found' })
+    }
+    
+    Object.assign(user.savedAddresses[addressIndex], req.body)
+    await user.save()
+    
+    res.json({ success: true, data: user.savedAddresses })
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message })
+  }
+}
+
+exports.deleteAddress = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id)
+    console.log(`🗑️ Attempting to delete address: ${req.params.id}`)
+    console.log(`Current address IDs:`, user.savedAddresses.map(a => a._id.toString()))
+    
+    const initialCount = user.savedAddresses.length
+    user.savedAddresses = user.savedAddresses.filter(addr => addr._id.toString() !== req.params.id)
+    
+    if (user.savedAddresses.length === initialCount) {
+      console.log(`⚠️ No address found with ID: ${req.params.id}`)
+    } else {
+      console.log(`✅ Address deleted. New count: ${user.savedAddresses.length}`)
+    }
+    
+    await user.save()
+    res.json({ success: true, data: user.savedAddresses })
+  } catch (err) {
+    console.log(`🔥 DELETE FAIL:`, err.message)
+    res.status(500).json({ success: false, message: err.message })
+  }
+}

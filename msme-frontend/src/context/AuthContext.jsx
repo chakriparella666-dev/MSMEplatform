@@ -8,35 +8,36 @@ function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
   const [retries, setRetries] = useState(0)
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const data = await getMe();
-        setUser(data.user);
+  const fetchUser = async () => {
+    try {
+      const data = await getMe();
+      setUser(data.user);
+      setLoading(false);
+    } catch (err) {
+      if (err.response?.status === 503 && retries < 5) {
+        setRetries(prev => prev + 1);
+        console.log(`📡 Database busy. Retrying auth...`);
+        setTimeout(fetchUser, 2000);
+      } else {
+        setUser(null);
         setLoading(false);
-      } catch (err) {
-        // If DB is busy (503) or connection flicker, retry up to 5 times
-        if (err.response?.status === 503 && retries < 5) {
-          setRetries(prev => prev + 1);
-          console.log(`📡 Database busy. Retrying auth...`);
-          setTimeout(fetchUser, 2000);
-        } else {
-          setUser(null);
-          setLoading(false);
-        }
       }
-    };
+    }
+  };
+
+  useEffect(() => {
     fetchUser();
   }, [])
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('onboarding_skipped');
     setUser(null);
     window.location.href = '/login';
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, loading, logout }}>
+    <AuthContext.Provider value={{ user, setUser, loading, logout, refreshUser: fetchUser }}>
       {loading ? (
         <div style={{
           height: '100vh',
