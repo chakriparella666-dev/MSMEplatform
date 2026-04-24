@@ -14,9 +14,16 @@ function AuthProvider({ children }) {
   const [retries, setRetries] = useState(0)
   const isMounted             = useRef(true)
   const retryTimeoutRef       = useRef(null)
+  const abortRef              = useRef(null)
+
+  const isPublicRoute = ['/login', '/register', '/forgot-password', '/reset-password', '/'].some(path =>
+    path === '/' ? window.location.pathname === '/' : window.location.pathname.startsWith(path)
+  );
 
   const fetchUser = async () => {
-    // Safety timeout to ensure we don't hang forever
+    if (abortRef.current) abortRef.current.abort();
+    abortRef.current = new AbortController();
+
     const safetyTimer = setTimeout(() => {
       if (isMounted.current) {
         console.warn('⚠️ Auth fetch taking too long, forcing loading to false');
@@ -25,10 +32,10 @@ function AuthProvider({ children }) {
     }, 5000);
 
     try {
-      const data = await getMe();
+      const data = await getMe({ signal: abortRef.current.signal });
       clearTimeout(safetyTimer);
       if (!isMounted.current) return;
-      
+
       if (data && data.user) {
         updateSetUser(data.user);
       } else {
@@ -38,7 +45,8 @@ function AuthProvider({ children }) {
     } catch (err) {
       clearTimeout(safetyTimer);
       if (!isMounted.current) return;
-      
+      if (err.name === 'AbortError') return;
+
       const status = err.response?.status;
       if (status === 503 && retries < 5) {
         setRetries(prev => prev + 1);
@@ -54,12 +62,13 @@ function AuthProvider({ children }) {
   };
 
   useEffect(() => {
-    fetchUser();
+    if (!isPublicRoute) fetchUser();
+    else setLoading(false);
+
     return () => {
       isMounted.current = false;
-      if (retryTimeoutRef.current) {
-        clearTimeout(retryTimeoutRef.current);
-      }
+      if (retryTimeoutRef.current) clearTimeout(retryTimeoutRef.current);
+      if (abortRef.current) abortRef.current.abort();
     };
   }, [])
 
