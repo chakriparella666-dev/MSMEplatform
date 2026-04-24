@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import * as productApi from '../../api/productApi'
 import axios from 'axios'
@@ -1589,6 +1590,7 @@ export default function SellerDashboard() {
   })
 
   const [globalRecs, setGlobalRecs] = useState([])
+  const [isSyncing, setIsSyncing] = useState(false)
 
   const [loading, setLoading] = useState(products.length === 0 && orders.length === 0)
   const [showAddForm, setShowAddForm] = useState(false)
@@ -1637,8 +1639,14 @@ export default function SellerDashboard() {
   }
 
   const refreshAll = async () => {
-    // Background refresh - don't show full screen spinner
-    Promise.all([fetchProducts(), fetchOrders(), fetchStats(), fetchForecast()])
+    setIsSyncing(true)
+    try {
+      await Promise.all([fetchProducts(), fetchOrders(), fetchStats(), fetchForecast()])
+    } catch (err) {
+      console.error('Background sync failed:', err)
+    } finally {
+      setIsSyncing(false)
+    }
   }
 
   const blankProduct = {
@@ -1651,10 +1659,16 @@ export default function SellerDashboard() {
 
   const [newProduct, setNewProduct] = useState(blankProduct)
 
+  const navigate = useNavigate()
+
   // Ensure we have latest data on mount
   useEffect(() => {
     if (refreshUser) refreshUser()
   }, [])
+
+  useEffect(() => {
+    if (!loading && !user) navigate('/login')
+  }, [user, loading, navigate])
 
   useEffect(() => {
     localStorage.setItem('seller_active_tab', activeTab)
@@ -1682,6 +1696,15 @@ export default function SellerDashboard() {
   // Any user with a business name is considered "onboarded" and can access the dashboard.
   const isComplete = (!!user?.businessName) || (user?.isProfileComplete === true);
   
+  const [connectionSlow, setConnectionSlow] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!user && !loading) setConnectionSlow(true);
+    }, 10000); // Increased to 10s for slower connections
+    return () => clearTimeout(timer);
+  }, [user, loading]);
+  
   console.log('Seller Dashboard isComplete:', isComplete);
 
   useEffect(() => {
@@ -1699,12 +1722,30 @@ export default function SellerDashboard() {
 
   // Safety: If auth is supposedly done but user is still null, something is wrong
   // but we shouldn't crash. Show loading if user is missing.
-  // Never block the whole hub for loading if we have a user (even an optimistic one)
-  if (!user || (user.isOptimistic && !isComplete)) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'var(--background)' }}>
-      <div style={{ textAlign: 'center' }}>
-        <div style={{ width: '56px', height: '56px', border: '4px solid #e2e8f0', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }}></div>
-        <p style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Loading your business hub...</p>
+  // Never block the whole hub for loading if we have a user
+  if (!user) return (
+    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', padding: '20px', textAlign: 'center' }}>
+      <div className="spinner-seller" style={{ width: '50px', height: '50px', border: '3px solid #e2e8f0', borderTop: '3px solid #0f172a', borderRadius: '50%', animation: 'spin-seller 1s linear infinite', marginBottom: '20px' }}></div>
+      <style>{`@keyframes spin-seller { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+      <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#1e293b', marginBottom: '8px' }}>Initializing Seller Hub</h3>
+      <p style={{ color: '#64748b', maxWidth: '300px', lineHeight: 1.5, fontSize: '0.9rem' }}>
+        {connectionSlow ? "We're having trouble connecting to the server. Please ensure your backend is running on port 5000." : "Accelerating your business environment..."}
+      </p>
+      <div style={{ marginTop: '20px', display: 'flex', gap: '12px' }}>
+        {connectionSlow && (
+          <button 
+            onClick={() => window.location.reload()}
+            style={{ padding: '12px 24px', background: '#0f172a', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 700, cursor: 'pointer' }}
+          >
+            Retry Connection
+          </button>
+        )}
+        <button 
+          onClick={() => navigate('/login')}
+          style={{ padding: '12px 24px', background: 'transparent', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '12px', fontWeight: 700, cursor: 'pointer' }}
+        >
+          Sign In Again
+        </button>
       </div>
     </div>
   )
@@ -1789,6 +1830,11 @@ export default function SellerDashboard() {
 
   return (
     <div className="seller-layout">
+      {isSyncing && (
+        <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 9999, background: 'rgba(15, 23, 42, 0.9)', color: 'white', padding: '10px 20px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.8rem', fontWeight: 700, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', animation: 'fadeIn 0.3s ease' }}>
+          <FaSync className="spin" size={14} /> Syncing Data...
+        </div>
+      )}
       <SellerSidebar activeTab={activeTab} setActiveTab={setActiveTab} logout={logout} />
       <main className="dashboard-content">
         {activeTab === 'overview'  && <OverviewTab user={user} stats={stats} orders={orders} products={products} onRefresh={refreshAll} />}

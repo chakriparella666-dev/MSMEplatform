@@ -2,7 +2,7 @@
 // Resets counters every 15 minutes automatically
 
 const WINDOW_MS = 15 * 60 * 1000 // 15 minutes
-const MAX_REQUESTS = 5
+const MAX_REQUESTS = 100
 
 const store = new Map()
 

@@ -94,7 +94,7 @@ export default function Dashboard() {
               }}>
                 {role.icon}
               </div>
-              <h3 style={{ fontSize: '1.5rem', fontBold: 700, color: '#0f172a', marginBottom: '12px' }}>{role.title}</h3>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#0f172a', marginBottom: '12px' }}>{role.title}</h3>
               <p style={{ color: 'var(--text-muted)', marginBottom: '32px', lineHeight: '1.6', flexGrow: 1 }}>
                 {role.desc}
               </p>

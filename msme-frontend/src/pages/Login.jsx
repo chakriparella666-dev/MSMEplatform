@@ -29,7 +29,7 @@ export default function Login() {
   const { user, setUser }           = useAuth()
   
   useEffect(() => {
-    if (user) navigate('/dashboard')
+    if (user) navigate('/buyer')
   }, [user, navigate])
   const [email, setEmail]     = useState('')
   const [password, setPassword] = useState('')
@@ -59,7 +59,7 @@ export default function Login() {
       const data = await loginUser({ email, password })
       setUser(data.user)
       setSuccess(true)
-      setTimeout(() => navigate('/dashboard'), 1500)
+      setTimeout(() => navigate('/buyer'), 1500)
     } catch (err) {
       setApiError(err?.response?.data?.message || 'Invalid credentials. Please try again.')
     } finally {

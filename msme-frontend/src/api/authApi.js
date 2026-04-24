@@ -29,7 +29,7 @@ API.interceptors.response.use(
 );
 
 const saveToken = (data) => {
-  if (data.token) localStorage.setItem('token', data.token);
+  if (data && data.token) localStorage.setItem('token', data.token);
   return data;
 };
 

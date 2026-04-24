@@ -22,8 +22,9 @@ exports.verifyToken = async (req, res, next) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET)
       console.log('✅ OK: Token valid for User', decoded.id);
       
-      // optimization: Trust the JWT, don't do a DB lookup here on every request
-      req.user = { id: decoded.id };
+      // OPTIMIZATION: Trust the JWT payload, don't do a DB lookup here.
+      // This payload now contains name, role, and businessName.
+      req.user = decoded;
       next();
     } catch (error) {
       console.log('❌ Auth rejected: Token invalid/expired');

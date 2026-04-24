@@ -49,26 +49,27 @@ exports.login = async (req, res) => {
 }
 
 exports.googleCallback = (req, res) => {
-  const token = signToken(req.user._id)
+  const token = signToken(req.user)
   // Set the secure auth token
   res.cookie('token', token, { httpOnly: true, secure: false, sameSite: 'lax', maxAge: 7*24*60*60*1000 })
   // Set a readable name cookie for instant UI rendering
-  // Set readable cookies for instant UI rendering and onboarding bypass
   res.cookie('display_name', req.user.name.split(' ')[0], { httpOnly: false, secure: false, sameSite: 'lax', maxAge: 7*24*60*60*1000 })
-  if (req.user.businessName) {
-    res.cookie('business_name', req.user.businessName, { httpOnly: false, secure: false, sameSite: 'lax', maxAge: 7*24*60*60*1000 })
-  }
-  res.cookie('is_complete', req.user.isProfileComplete ? 'true' : 'false', { httpOnly: false, secure: false, sameSite: 'lax', maxAge: 7*24*60*60*1000 })
-  
   res.redirect(`${process.env.CLIENT_URL}/buyer`)
 }
 
 exports.getMe = async (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
   try {
-    const user = await User.findById(req.user.id)
-    res.json({ success: true, user, token: signToken(user._id) })
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    res.status(200).json({
+      success: true,
+      user
+    })
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message })
+    res.status(500).json({ success: false, message: err.message });
   }
 }
 
