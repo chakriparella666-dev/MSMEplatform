@@ -3,12 +3,13 @@ const passport = require('passport')
 const router   = express.Router()
 const { register, login, googleCallback, getMe, logout, forgotPassword, resetPassword, updateProfile } = require('../controllers/authController')
 const { verifyToken } = require('../middleware/authMiddleware')
+const { rateLimiter } = require('../middleware/rateLimiter')
 
 // Trigger reload
 router.get('/ping', (req, res) => res.json({ msg: 'auth api online' }))
 
-router.post('/register',  register)
-router.post('/login',     login)
+router.post('/register', rateLimiter, register)
+router.post('/login',    rateLimiter, login)
 router.get('/me',         verifyToken, getMe)
 router.put('/update-profile', verifyToken, (req, res, next) => {
   console.log('📡 PUT /api/auth/update-profile hit!');
