@@ -20,7 +20,7 @@ API.interceptors.request.use((config) => {
 API.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 && !window.location.pathname.startsWith('/login')) {
       localStorage.removeItem('token');
       window.location.href = '/login';
     }
@@ -42,4 +42,4 @@ export const logoutUser    = ()     => {
   return API.post('/logout').then(r => r.data);
 }
 export const pingAuth      = ()     => API.get('/ping').then(r => r.data)
-export const googleAuthURL = ()     => `/api/auth/google`
+export const googleAuthURL = ()     => `http://localhost:5000/api/auth/google`

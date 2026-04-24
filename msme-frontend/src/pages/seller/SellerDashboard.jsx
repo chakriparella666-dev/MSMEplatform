@@ -1599,7 +1599,8 @@ export default function SellerDashboard() {
   const [newDistrict, setNewDistrict] = useState(user?.district || '')
   const [newState, setNewState] = useState(user?.state || '')
 
-  const [onboardingSkipped, setOnboardingSkipped] = useState(() => localStorage.getItem('onboarding_skipped') === 'true')
+  // Removed onboarding_skipped as it should be mandatory for new sellers
+  const [onboardingSkipped, setOnboardingSkipped] = useState(false);
 
   const fetchProducts = async () => {
     try { 
@@ -1636,9 +1637,8 @@ export default function SellerDashboard() {
   }
 
   const refreshAll = async () => {
-    setLoading(true)
-    await Promise.all([fetchProducts(), fetchOrders(), fetchStats(), fetchForecast()])
-    setLoading(false)
+    // Background refresh - don't show full screen spinner
+    Promise.all([fetchProducts(), fetchOrders(), fetchStats(), fetchForecast()])
   }
 
   const blankProduct = {
@@ -1679,13 +1679,19 @@ export default function SellerDashboard() {
   console.log('Seller Dashboard User:', user);
   
   // Robust isComplete check
-  const isComplete = (user?.isProfileComplete === true) || (!!user?.businessName) || onboardingSkipped;
+  // Any user with a business name is considered "onboarded" and can access the dashboard.
+  const isComplete = (!!user?.businessName) || (user?.isProfileComplete === true);
   
   console.log('Seller Dashboard isComplete:', isComplete);
 
   useEffect(() => {
     if (isComplete) {
-      Promise.all([fetchProducts(), fetchOrders(), fetchStats(), fetchForecast()]).finally(() => setLoading(false))
+      // Trigger all fetches in background
+      fetchProducts()
+      fetchOrders()
+      fetchStats()
+      fetchForecast()
+      setLoading(false)
     } else {
       setLoading(false)
     }
@@ -1693,7 +1699,8 @@ export default function SellerDashboard() {
 
   // Safety: If auth is supposedly done but user is still null, something is wrong
   // but we shouldn't crash. Show loading if user is missing.
-  if (loading || !user) return (
+  // Never block the whole hub for loading if we have a user (even an optimistic one)
+  if (!user || (user.isOptimistic && !isComplete)) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'var(--background)' }}>
       <div style={{ textAlign: 'center' }}>
         <div style={{ width: '56px', height: '56px', border: '4px solid #e2e8f0', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }}></div>

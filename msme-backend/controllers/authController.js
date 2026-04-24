@@ -50,7 +50,16 @@ exports.login = async (req, res) => {
 
 exports.googleCallback = (req, res) => {
   const token = signToken(req.user._id)
+  // Set the secure auth token
   res.cookie('token', token, { httpOnly: true, secure: false, sameSite: 'lax', maxAge: 7*24*60*60*1000 })
+  // Set a readable name cookie for instant UI rendering
+  // Set readable cookies for instant UI rendering and onboarding bypass
+  res.cookie('display_name', req.user.name.split(' ')[0], { httpOnly: false, secure: false, sameSite: 'lax', maxAge: 7*24*60*60*1000 })
+  if (req.user.businessName) {
+    res.cookie('business_name', req.user.businessName, { httpOnly: false, secure: false, sameSite: 'lax', maxAge: 7*24*60*60*1000 })
+  }
+  res.cookie('is_complete', req.user.isProfileComplete ? 'true' : 'false', { httpOnly: false, secure: false, sameSite: 'lax', maxAge: 7*24*60*60*1000 })
+  
   res.redirect(`${process.env.CLIENT_URL}/buyer`)
 }
 

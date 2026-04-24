@@ -7,8 +7,24 @@ import { useAuth } from '../context/AuthContext'
 import { fetchStates, fetchDistricts } from '../services/locationService'
 
 export default function BuyerNavbar({ onSearchChange, onCategoryChange, currentSearch, currentCategory }) {
-  const { user, logout } = useAuth()
+  const { user, logout, loading } = useAuth()
   const navigate = useNavigate()
+  
+  // Helper to get cookie for instant name display
+  const getCookie = (name) => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+  }
+  
+  const [displayName, setDisplayName] = useState(() => {
+    return user?.name?.split(' ')[0] || getCookie('display_name') || ''
+  })
+
+  useEffect(() => {
+    if (user?.name) setDisplayName(user.name.split(' ')[0])
+  }, [user])
   
   const [localSearch, setLocalSearch] = useState(currentSearch || '')
   const [cart, setCart] = useState({ items: [] })
@@ -84,8 +100,12 @@ export default function BuyerNavbar({ onSearchChange, onCategoryChange, currentS
 
   useEffect(() => {
     fetchCategories()
-    fetchCart()
-    fetchWishlistCount()
+    
+    // Fetch user-specific data only if user is available
+    if (user) {
+      fetchCart()
+      fetchWishlistCount()
+    }
     
     const handleCartUpdate = () => fetchCart()
     const handleWishlistUpdate = () => fetchWishlistCount()
@@ -97,7 +117,7 @@ export default function BuyerNavbar({ onSearchChange, onCategoryChange, currentS
       window.removeEventListener('cartUpdated', handleCartUpdate)
       window.removeEventListener('wishlistUpdated', handleWishlistUpdate)
     }
-  }, [])
+  }, [user])
   
   useEffect(() => {
     if (currentSearch !== undefined) setLocalSearch(currentSearch)
@@ -248,7 +268,7 @@ export default function BuyerNavbar({ onSearchChange, onCategoryChange, currentS
           >
             <div style={{ textAlign: 'right' }}>
               <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.6)', fontWeight: 800, textTransform: 'uppercase' }}>Account</div>
-              <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'white' }}>{user?.name ? user.name.split(' ')[0] : 'Sign In'}</div>
+              <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'white' }}>{displayName || (loading ? 'Checking...' : 'Sign In')}</div>
             </div>
             <div style={{ width: '42px', height: '42px', borderRadius: '50%', overflow: 'hidden', background: 'rgba(255,255,255,0.1)', border: '1.5px solid rgba(255,255,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'var(--transition)' }} onMouseEnter={e => e.currentTarget.style.borderColor = '#fff'}>
               {user?.avatar ? (

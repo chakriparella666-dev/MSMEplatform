@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { loginUser } from '../api/authApi'
@@ -26,7 +26,11 @@ if (!document.head.querySelector('#msme-styles')) {
 
 export default function Login() {
   const navigate              = useNavigate()
-  const { setUser }           = useAuth()
+  const { user, setUser }           = useAuth()
+  
+  useEffect(() => {
+    if (user) navigate('/dashboard')
+  }, [user, navigate])
   const [email, setEmail]     = useState('')
   const [password, setPassword] = useState('')
   const [showPass, setShowPass] = useState(false)
