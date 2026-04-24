@@ -13,6 +13,13 @@ require('./config/passport')
 // Connect to Database
 connectDB()
 
+// Handle uncaught exceptions (synchronous)
+process.on('uncaughtException', (err) => {
+  console.error('UNCAUGHT EXCEPTION! 💥 Shutting down...')
+  console.error(err.name, err.message)
+  process.exit(1)
+})
+
 const morgan = require('morgan')
 const app = express()
 
@@ -53,4 +60,20 @@ app.use((err, req, res, next) => {
 })
 
 const PORT = process.env.PORT || 5000
-app.listen(PORT, () => console.log(`🚀 Rocket Server running on port ${PORT}`))
+const server = app.listen(PORT, () => console.log(`🚀 Rocket Server running on port ${PORT}`))
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (err) => {
+  console.error('UNHANDLED REJECTION! 💥 Shutting down...')
+  console.error(err.name, err.message)
+  server.close(() => process.exit(1))
+})
+
+// Graceful shutdown on SIGTERM
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received. Shutting down gracefully...')
+  server.close(() => {
+    console.log('Server closed.')
+    process.exit(0)
+  })
+})
