@@ -6,8 +6,6 @@ pipeline {
         JWT_SECRET = credentials('JWT_SECRET')
         GOOGLE_CLIENT_ID = credentials('GOOGLE_CLIENT_ID')
         GOOGLE_CLIENT_SECRET = credentials('GOOGLE_CLIENT_SECRET')
-        BACKEND_URL = "http://localhost:5000"
-        FRONTEND_URL = "http://localhost:3001"
     }
 
     stages {
@@ -19,15 +17,14 @@ pipeline {
             }
         }
 
-        stage('Create .env file') {
+        stage('Create Backend .env File') {
             steps {
                 writeFile file: 'msme-backend/.env', text: """
 MONGO_URL=${MONGO_URL}
 JWT_SECRET=${JWT_SECRET}
 GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
 GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-BACKEND_URL=${BACKEND_URL}
-FRONTEND_URL=${FRONTEND_URL}
+PORT=5000
 """
             }
         }
@@ -38,19 +35,19 @@ FRONTEND_URL=${FRONTEND_URL}
             }
         }
 
-        stage('Build Images') {
+        stage('Build Docker Images') {
             steps {
-                bat 'docker compose build'
+                bat 'docker compose build --no-cache'
             }
         }
 
-        stage('Deploy Containers') {
+        stage('Run Containers') {
             steps {
                 bat 'docker compose up -d'
             }
         }
 
-        stage('Verify Running') {
+        stage('Verify Containers') {
             steps {
                 bat 'docker ps'
             }
