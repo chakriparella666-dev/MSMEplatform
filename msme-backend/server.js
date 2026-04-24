@@ -45,7 +45,19 @@ app.use('/api/orders', require('./routes/orderRoutes'))
 app.use('/api/cart', require('./routes/cartRoutes'))
 app.use('/api/schemes', require('./routes/schemeRoutes'))
 
-app.get('/health', (req, res) => res.json({ status: 'MSME API running ✅' }))
+app.get('/health', (req, res) => {
+  const mem = process.memoryUsage()
+  res.json({
+    status: 'MSME API running ✅',
+    timestamp: new Date().toISOString(),
+    uptime: Math.floor(process.uptime()),
+    memory: {
+      rss: Math.round(mem.rss / 1024 / 1024) + ' MB',
+      heapUsed: Math.round(mem.heapUsed / 1024 / 1024) + ' MB',
+    },
+    env: process.env.NODE_ENV || 'development',
+  })
+})
 
 // Global Error Handler
 app.use((err, req, res, next) => {
