@@ -23,8 +23,8 @@ process.on('uncaughtException', (err) => {
 const morgan = require('morgan')
 const app = express()
 
-// Request logging
-app.use(morgan('dev'))
+// Request logging (skip health checks to reduce noise)
+app.use(morgan('dev', { skip: (req) => req.url === '/health' }))
 
 // Rocket-Fast performance middle-wares
 app.use(compression()) // Compresses all responses
@@ -43,6 +43,13 @@ app.use(express.json({ limit: '50mb' }))
 app.use(express.urlencoded({ limit: '50mb', extended: true }))
 app.use(cookieParser())
 app.use(passport.initialize())
+
+// Request ID middleware for tracing
+app.use((req, res, next) => {
+  req.id = req.headers['x-request-id'] || `req-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+  res.setHeader('X-Request-ID', req.id)
+  next()
+})
 
 // Routes
 app.use('/api/auth', require('./routes/auth'))
