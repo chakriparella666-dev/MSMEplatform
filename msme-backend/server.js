@@ -1,13 +1,13 @@
 require('dotenv').config()
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'  // Fix SSL on Windows + Node 22
 
-const express      = require('express')
-const cors         = require('cors')
+const express = require('express')
+const cors = require('cors')
 const cookieParser = require('cookie-parser')
-const helmet       = require('helmet')
-const passport     = require('passport')
-const compression  = require('compression')
-const connectDB    = require('./config/db')
+const helmet = require('helmet')
+const passport = require('passport')
+const compression = require('compression')
+const connectDB = require('./config/db')
 require('./config/passport')
 
 // Connect to Database
@@ -29,15 +29,14 @@ app.use(morgan('dev', { skip: (req) => req.url === '/health' }))
 // Rocket-Fast performance middle-wares
 app.use(compression()) // Compresses all responses
 app.use(helmet({ contentSecurityPolicy: false }))
-app.use(cors({ 
+app.use(cors({
   origin: [
-    process.env.CLIENT_URL, 
-    "http://localhost:5173", 
-    "http://127.0.0.1:5173", 
+    process.env.CLIENT_URL,
+
     "http://localhost:3000",
     "http://localhost:3001"
-  ], 
-  credentials: true 
+  ],
+  credentials: true
 }))
 app.use(express.json({ limit: '50mb' }))
 app.use(express.urlencoded({ limit: '50mb', extended: true }))

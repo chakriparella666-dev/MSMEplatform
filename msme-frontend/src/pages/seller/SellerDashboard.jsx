@@ -1559,15 +1559,6 @@ export default function SellerDashboard() {
     return localStorage.getItem('seller_active_tab') || 'overview'
   })
 
-  // Ensure we have latest data on mount
-  useEffect(() => {
-    if (refreshUser) refreshUser()
-  }, [])
-
-  useEffect(() => {
-    localStorage.setItem('seller_active_tab', activeTab)
-  }, [activeTab])
-  
   // Initialize from cache for "instant" feel
   const [products, setProducts] = useState(() => {
     try {
@@ -1597,6 +1588,7 @@ export default function SellerDashboard() {
     } catch { return [] }
   })
 
+  const [globalRecs, setGlobalRecs] = useState([])
 
   const [loading, setLoading] = useState(products.length === 0 && orders.length === 0)
   const [showAddForm, setShowAddForm] = useState(false)
@@ -1606,66 +1598,8 @@ export default function SellerDashboard() {
   const [newBusinessName, setNewBusinessName] = useState(user?.businessName || '')
   const [newDistrict, setNewDistrict] = useState(user?.district || '')
   const [newState, setNewState] = useState(user?.state || '')
-  
-  // Sync local states when user data updates (e.g. after save)
-  useEffect(() => {
-    if (user) {
-      setNewBusinessName(user.businessName || '')
-      setNewDistrict(user.district || '')
-      setNewState(user.state || '')
-    }
-  }, [user])
 
-  // Sync profile fields whenever user object updates (e.g. after save)
-  useEffect(() => {
-    setNewBusinessName(user?.businessName || '')
-    setNewState(user?.state || '')
-    setNewDistrict(user?.district || '')
-  }, [user])
-
-  const blankProduct = {
-    name: '', description: '', price: '', category: '', images: [''],
-    sku: '', isActive: true, lowStockThreshold: 5, autoDelist: true,
-    rawMaterials: [],
-    sizes: [{ size: 'XS', stock: 0 }, { size: 'S', stock: 0 }, { size: 'M', stock: 0 },
-            { size: 'L', stock: 0 }, { size: 'XL', stock: 0 }, { size: 'XXL', stock: 0 }]
-  }
-
-  const [newProduct, setNewProduct] = useState(blankProduct)
-
-
-  const refreshAll = async () => {
-    setLoading(true)
-    await Promise.all([fetchProducts(), fetchOrders(), fetchStats(), fetchForecast()])
-    setLoading(false)
-  }
-
-  console.log('Seller Dashboard User:', user);
   const [onboardingSkipped, setOnboardingSkipped] = useState(() => localStorage.getItem('onboarding_skipped') === 'true')
-  
-  // Robust isComplete check — fallback to loading if user is missing but we're supposedly not loading
-  const isComplete = (user?.isProfileComplete === true) || (!!user?.businessName) || onboardingSkipped;
-  
-  console.log('Seller Dashboard isComplete:', isComplete);
-
-  useEffect(() => {
-    if (isComplete) {
-      Promise.all([fetchProducts(), fetchOrders(), fetchStats(), fetchForecast()]).finally(() => setLoading(false))
-    } else {
-      setLoading(false)
-    }
-  }, [isComplete])
-
-  // Safety: If auth is supposedly done but user is still null, something is wrong
-  // but we shouldn't crash. Show loading if user is missing.
-  if (loading || !user) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'var(--background)' }}>
-      <div style={{ textAlign: 'center' }}>
-        <div style={{ width: '56px', height: '56px', border: '4px solid #e2e8f0', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }}></div>
-        <p style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Loading your business hub...</p>
-      </div>
-    </div>
-  )
 
   const fetchProducts = async () => {
     try { 
@@ -1692,8 +1626,6 @@ export default function SellerDashboard() {
     catch (err) { console.error(err) }
   }
 
-  const [globalRecs, setGlobalRecs] = useState([])
-
   const fetchForecast = async () => {
     try {
       const { data } = await axios.get('/api/orders/seller/forecast', { withCredentials: true });
@@ -1702,6 +1634,73 @@ export default function SellerDashboard() {
       localStorage.setItem('cached_seller_forecast', JSON.stringify(data.data))
     } catch (err) { console.error(err) }
   }
+
+  const refreshAll = async () => {
+    setLoading(true)
+    await Promise.all([fetchProducts(), fetchOrders(), fetchStats(), fetchForecast()])
+    setLoading(false)
+  }
+
+  const blankProduct = {
+    name: '', description: '', price: '', category: '', images: [''],
+    sku: '', isActive: true, lowStockThreshold: 5, autoDelist: true,
+    rawMaterials: [],
+    sizes: [{ size: 'XS', stock: 0 }, { size: 'S', stock: 0 }, { size: 'M', stock: 0 },
+            { size: 'L', stock: 0 }, { size: 'XL', stock: 0 }, { size: 'XXL', stock: 0 }]
+  }
+
+  const [newProduct, setNewProduct] = useState(blankProduct)
+
+  // Ensure we have latest data on mount
+  useEffect(() => {
+    if (refreshUser) refreshUser()
+  }, [])
+
+  useEffect(() => {
+    localStorage.setItem('seller_active_tab', activeTab)
+  }, [activeTab])
+  
+  // Sync local states when user data updates (e.g. after save)
+  useEffect(() => {
+    if (user) {
+      setNewBusinessName(user.businessName || '')
+      setNewDistrict(user.district || '')
+      setNewState(user.state || '')
+    }
+  }, [user])
+
+  // Sync profile fields whenever user object updates (e.g. after save)
+  useEffect(() => {
+    setNewBusinessName(user?.businessName || '')
+    setNewState(user?.state || '')
+    setNewDistrict(user?.district || '')
+  }, [user])
+
+  console.log('Seller Dashboard User:', user);
+  
+  // Robust isComplete check
+  const isComplete = (user?.isProfileComplete === true) || (!!user?.businessName) || onboardingSkipped;
+  
+  console.log('Seller Dashboard isComplete:', isComplete);
+
+  useEffect(() => {
+    if (isComplete) {
+      Promise.all([fetchProducts(), fetchOrders(), fetchStats(), fetchForecast()]).finally(() => setLoading(false))
+    } else {
+      setLoading(false)
+    }
+  }, [isComplete])
+
+  // Safety: If auth is supposedly done but user is still null, something is wrong
+  // but we shouldn't crash. Show loading if user is missing.
+  if (loading || !user) return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'var(--background)' }}>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ width: '56px', height: '56px', border: '4px solid #e2e8f0', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }}></div>
+        <p style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Loading your business hub...</p>
+      </div>
+    </div>
+  )
 
 
   const handleUpdateStatus = async (orderId, newStatus) => {

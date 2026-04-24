@@ -169,7 +169,7 @@ export default function BuyerNavbar({ onSearchChange, onCategoryChange, currentS
         position: 'sticky',
         top: 0,
         zIndex: 1000,
-        boxShadow: '0 10px 40px rgba(79, 70, 229, 0.2)'
+        boxShadow: '0 10px 40px rgba(0, 0, 0, 0.2)'
       }}>
         <div 
           style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} 
@@ -495,9 +495,9 @@ export default function BuyerNavbar({ onSearchChange, onCategoryChange, currentS
               type="button"
               onClick={handleGetCurrentLocation}
               disabled={gettingLocation}
-              style={{ width: '100%', background: gettingLocation ? '#f1f5f9' : '#EFF6FF', color: gettingLocation ? '#94a3b8' : '#2563EB', border: `1.5px solid ${gettingLocation ? '#e2e8f0' : '#3B82F6'}`, padding: '14px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', cursor: gettingLocation ? 'default' : 'pointer', fontWeight: 700, marginBottom: '24px', transition: 'all 0.3s ease' }}
+              style={{ width: '100%', background: gettingLocation ? '#f1f5f9' : '#F3F4F6', color: gettingLocation ? '#94a3b8' : '#0F172A', border: `1.5px solid ${gettingLocation ? '#e2e8f0' : '#0F172A'}`, padding: '14px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', cursor: gettingLocation ? 'default' : 'pointer', fontWeight: 700, marginBottom: '24px', transition: 'all 0.3s ease' }}
             >
-              <FaCrosshairs color={gettingLocation ? '#94a3b8' : '#3B82F6'} /> {gettingLocation ? 'Locating via GPS...' : 'Auto-detect my location'}
+              <FaCrosshairs color={gettingLocation ? '#94a3b8' : '#0F172A'} /> {gettingLocation ? 'Locating via GPS...' : 'Auto-detect my location'}
             </button>
 
             <div style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 700, marginBottom: '24px', textTransform: 'uppercase' }}>-- OR SELECT MANUALLY --</div>
