@@ -1,6 +1,6 @@
 # MSME Platform - AI-Enabled District-Level Marketplace
 
-An advanced, AI-powered e-commerce and operational platform designed to empower Micro, Small, and Medium Enterprises (MSMEs) by providing them with the tools needed to scale their businesses from local hubs to global markets.
+An advanced and  AI-powered e-commerce and operational platform designed to empower Micro, Small, and Medium Enterprises (MSMEs) by providing them with the tools needed to scale their businesses from local hubs to global markets.
 
 ## 🚀 Overview
 
