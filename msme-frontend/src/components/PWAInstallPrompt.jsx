@@ -6,20 +6,24 @@ export default function PWAInstallPrompt() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    window.addEventListener('beforeinstallprompt', (e) => {
-      // Prevent the mini-infobar from appearing on mobile
+    const handleBeforeInstall = (e) => {
       e.preventDefault();
-      // Stash the event so it can be triggered later.
       setDeferredPrompt(e);
-      // Update UI notify the user they can install the PWA
       setIsVisible(true);
-    });
+    };
 
-    window.addEventListener('appinstalled', (evt) => {
-      // Log install to analytics
+    const handleAppInstalled = () => {
       console.log('INSTALL: Success');
       setIsVisible(false);
-    });
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
   }, []);
 
   const handleInstallClick = async () => {
