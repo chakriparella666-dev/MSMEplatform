@@ -3,9 +3,20 @@ const crypto = require('crypto')
 const nodemailer = require('nodemailer')
 const User = require('../models/User')
 
+/**
+ * Generate a JWT token for the given user ID.
+ * @param {string} id - MongoDB user ID
+ * @returns {string} Signed JWT token
+ */
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE || '7d' })
 
+/**
+ * Send an HTTP-only cookie with JWT and respond with user data.
+ * @param {Object} user - Mongoose user document
+ * @param {number} statusCode - HTTP status code
+ * @param {Object} res - Express response object
+ */
 const sendToken = (user, statusCode, res) => {
   const token = signToken(user._id)
   res.cookie('token', token, {
@@ -18,6 +29,12 @@ const sendToken = (user, statusCode, res) => {
   res.status(statusCode).json({ success: true, token, user })
 }
 
+/**
+ * Register a new user.
+ * @route POST /api/auth/register
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
 exports.register = async (req, res) => {
   try {
     const { name, password } = req.body
@@ -31,6 +48,12 @@ exports.register = async (req, res) => {
   }
 }
 
+/**
+ * Authenticate an existing user and issue a JWT cookie.
+ * @route POST /api/auth/login
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
 exports.login = async (req, res) => {
   try {
     const { password } = req.body
@@ -48,6 +71,12 @@ exports.login = async (req, res) => {
   }
 }
 
+/**
+ * Handle Google OAuth callback and redirect to client.
+ * @route GET /api/auth/google/callback
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
 exports.googleCallback = (req, res) => {
   const token = signToken(req.user)
   // Set the secure auth token
@@ -57,6 +86,12 @@ exports.googleCallback = (req, res) => {
   res.redirect(`${process.env.CLIENT_URL}/buyer`)
 }
 
+/**
+ * Return the currently authenticated user.
+ * @route GET /api/auth/me
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
 exports.getMe = async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
   try {
@@ -73,6 +108,12 @@ exports.getMe = async (req, res) => {
   }
 }
 
+/**
+ * Update the authenticated user's profile fields.
+ * @route PUT /api/auth/update-profile
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
 exports.updateProfile = async (req, res) => {
   try {
     console.log('📡 [AUTH] updateProfile request:', req.body);
@@ -114,11 +155,23 @@ exports.updateProfile = async (req, res) => {
   }
 }
 
+/**
+ * Clear the JWT cookie and log the user out.
+ * @route POST /api/auth/logout
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
 exports.logout = (req, res) => {
   res.cookie('token', '', { maxAge: 0 })
   res.json({ success: true, message: 'Logged out successfully' })
 }
 
+/**
+ * Send a password reset email with a time-limited token.
+ * @route POST /api/auth/forgot-password
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
 exports.forgotPassword = async (req, res) => {
   try {
     const email = req.body.email?.toLowerCase().trim()
@@ -160,6 +213,12 @@ exports.forgotPassword = async (req, res) => {
   }
 }
 
+/**
+ * Reset user password using a valid reset token.
+ * @route PUT /api/auth/reset-password/:token
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
 exports.resetPassword = async (req, res) => {
   try {
     const resetPasswordToken = crypto.createHash('sha256').update(req.params.token).digest('hex')
