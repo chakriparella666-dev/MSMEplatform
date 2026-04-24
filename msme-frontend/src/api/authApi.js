@@ -16,6 +16,18 @@ API.interceptors.request.use((config) => {
   return config;
 });
 
+// Handle 401 globally — auto logout on session expiry
+API.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
 const saveToken = (data) => {
   if (data.token) localStorage.setItem('token', data.token);
   return data;
