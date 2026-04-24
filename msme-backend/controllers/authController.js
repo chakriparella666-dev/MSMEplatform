@@ -20,13 +20,20 @@ const sendToken = (user, statusCode, res) => {
 
 exports.register = async (req, res) => {
   try {
+    console.log('📡 [AUTH] Registering user:', req.body.email);
     const { name, password } = req.body
     const email = req.body.email?.toLowerCase().trim()
-    if (await User.findOne({ email }))
+    
+    if (await User.findOne({ email })) {
+      console.warn('⚠️ [AUTH] Registration failed: Email exists');
       return res.status(400).json({ success: false, message: 'Email already registered' })
+    }
+    
     const user = await User.create({ name, email, password })
+    console.log('✅ [AUTH] User created successfully:', user.email);
     sendToken(user, 201, res)
   } catch (err) {
+    console.error('❌ [AUTH] Registration Error:', err.message);
     res.status(500).json({ success: false, message: err.message })
   }
 }

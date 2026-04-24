@@ -72,12 +72,27 @@ function AuthProvider({ children }) {
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    localStorage.removeItem('onboarding_skipped');
-    setUser(null);
-    window.location.href = '/login';
+  const logout = async () => {
+    try {
+      // 1. Tell backend to clear the HTTP-only cookie
+      const { logoutUser } = await import('../api/authApi');
+      await logoutUser();
+    } catch (err) {
+      console.error('Logout API error:', err);
+    } finally {
+      // 2. Clear all local state regardless of API success
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('onboarding_skipped');
+      localStorage.removeItem('display_name');
+      
+      // 3. Clear cookies manually on frontend just in case
+      document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      document.cookie = "display_name=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      
+      setUser(null);
+      window.location.href = '/login';
+    }
   };
 
   const isPublicRoute = ['/login', '/register', '/forgot-password', '/reset-password', '/'].some(path => 

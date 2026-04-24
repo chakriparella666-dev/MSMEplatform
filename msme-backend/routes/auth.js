@@ -15,7 +15,7 @@ router.put('/update-profile', verifyToken, (req, res, next) => {
   console.log('📡 PUT /api/auth/update-profile hit!');
   next();
 }, updateProfile)
-router.post('/logout', verifyToken, logout)
+router.post('/logout', logout)
 router.post('/forgot-password', forgotPassword)
 router.post('/reset-password/:token', resetPassword)
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], session: false }));
