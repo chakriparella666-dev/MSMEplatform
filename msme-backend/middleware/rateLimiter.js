@@ -19,7 +19,7 @@ const cleanup = () => {
 setInterval(cleanup, WINDOW_MS)
 
 exports.rateLimiter = (req, res, next) => {
-  const key = req.ip || req.connection.remoteAddress || 'unknown'
+  const key = req.ip || req.connection.remoteAddress || req.headers['x-forwarded-for'] || 'unknown'
   const now = Date.now()
 
   if (!store.has(key)) {
@@ -36,9 +36,12 @@ exports.rateLimiter = (req, res, next) => {
   }
 
   if (data.count >= MAX_REQUESTS) {
+    const retryAfter = Math.ceil((data.startTime + WINDOW_MS - now) / 1000)
+    res.setHeader('Retry-After', retryAfter)
     return res.status(429).json({
       success: false,
-      message: 'Too many attempts. Please try again after 15 minutes.'
+      message: 'Too many attempts. Please try again after 15 minutes.',
+      retryAfter,
     })
   }
 
