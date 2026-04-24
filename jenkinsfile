@@ -21,7 +21,7 @@ pipeline {
 
         stage('Create .env file') {
             steps {
-                writeFile file: '.env', text: """
+                writeFile file: 'msme-backend/.env', text: """
 MONGO_URL=${MONGO_URL}
 JWT_SECRET=${JWT_SECRET}
 GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
