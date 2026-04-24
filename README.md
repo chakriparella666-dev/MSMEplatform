@@ -100,6 +100,30 @@ The MSME Platform is a full-stack MERN application that serves as a district-lev
    npm run dev
    ```
 
+## 🖥️ Quick Server Start
+
+To start the full application locally:
+
+1. **Start MongoDB** (ensure it's running locally or via a service).
+2. **Start the Backend:**
+   ```bash
+   cd msme-backend
+   npm install   # if not already installed
+   npm start
+   ```
+   The backend will run on `http://localhost:5000` by default.
+3. **Start the Frontend:**
+   ```bash
+   cd msme-frontend
+   npm install   # if not already installed
+   npm run dev
+   ```
+   The frontend will run on `http://localhost:3001` by default.
+
+## 🌐 HTTPS Usage Note
+
+This codebase integrates with several third-party APIs and services that communicate over **HTTPS** (e.g., Shiprocket API, Nominatim OpenStreetMap, Google OAuth, and npm registry packages). While the local development servers run on HTTP, ensure that all external API keys and environment variables are configured securely for production deployments.
+
 ## 📄 License
 
 Distributed under the MIT License. See `LICENSE` for more information.
