@@ -42,4 +42,5 @@ export const logoutUser    = ()     => {
   return API.post('/logout').then(r => r.data);
 }
 export const pingAuth      = ()     => API.get('/ping').then(r => r.data)
-export const googleAuthURL = ()     => `http://localhost:5000/api/auth/google`
+// Replace line 45:
+export const googleAuthURL = () => `/api/auth/google`
