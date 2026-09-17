@@ -19,16 +19,20 @@ app.use(helmet({ contentSecurityPolicy: false }))
 app.use(cors({
   origin: [
     process.env.CLIENT_URL,
+    "http://localhost",
+    "http://localhost:80",
     "http://localhost:3000",
-    "http://localhost:3001"
-  ],
+    "http://localhost:3001",
+    "http://127.0.0.1:3001",
+    "http://127.0.0.1"
+  ].filter(Boolean),
   credentials: true
 }))
 app.use(express.json({ limit: '50mb' }))
 app.use(express.urlencoded({ limit: '50mb', extended: true }))
 app.use(cookieParser())
 app.use(passport.initialize())
-app.use(morgan('dev', { skip: (req) => req.url === '/health' }))
+app.use(morgan('dev', { skip: (req) => req.url === '/health' || req.url === '/' }))
 
 // Request ID middleware for tracing
 app.use((req, res, next) => {
@@ -45,6 +49,7 @@ app.use('/api/orders', require('./routes/orderRoutes'))
 app.use('/api/cart', require('./routes/cartRoutes'))
 app.use('/api/schemes', require('./routes/schemeRoutes'))
 
+app.get('/', (req, res) => res.json({ status: 'MSME Backend API is running ✅', health: '/health' }))
 app.get('/health', (req, res) => res.json({ status: 'MSME API running ✅' }))
 
 // Global Error Handler

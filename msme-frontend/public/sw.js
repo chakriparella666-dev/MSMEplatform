@@ -1,34 +1,31 @@
-const CACHE_NAME = 'msmemarket-v1';
-const urlsToCache = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/logo192.png'
-];
+const CACHE_NAME = 'msmemarket-v2';
 
 self.addEventListener('install', event => {
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        return cache.addAll(urlsToCache);
-      })
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cache => {
+          if (cache !== CACHE_NAME) {
+            return caches.delete(cache);
+          }
+        })
+      );
+    }).then(() => self.clients.claim())
   );
 });
 
 self.addEventListener('fetch', event => {
-  // Never cache API requests
-  if (event.request.url.includes('/api/')) {
-    return event.respondWith(fetch(event.request));
+  // Always fetch fresh for API requests and page navigations
+  if (event.request.url.includes('/api/') || event.request.mode === 'navigate') {
+    return;
   }
 
+  // Network first with cache fallback for static assets
   event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        if (response) {
-          return response;
-        }
-        return fetch(event.request);
-      }
-    )
+    fetch(event.request).catch(() => caches.match(event.request))
   );
 });
