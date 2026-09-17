@@ -20,10 +20,12 @@ pipeline {
         stage('Create Backend .env File') {
             steps {
                 writeFile file: 'msme-backend/.env', text: """
-MONGO_URL=${MONGO_URL}
+MONGO_URL=mongodb+srv://chakriparella666_db_user:chakri@cluster0.4ifc8lf.mongodb.net/msme_db?retryWrites=true&w=majority&appName=Cluster0
 JWT_SECRET=${JWT_SECRET}
 GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
 GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+GOOGLE_CALLBACK_URL=http://localhost:5000/api/auth/google/callback
+CLIENT_URL=http://localhost:3000
 PORT=5000
 """
             }
