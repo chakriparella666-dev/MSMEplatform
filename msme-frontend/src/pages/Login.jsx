@@ -25,20 +25,24 @@ if (!document.head.querySelector('#msme-styles')) {
 }
 
 export default function Login() {
-  const navigate              = useNavigate()
-  const { user, setUser }           = useAuth()
+  const navigate                    = useNavigate()
+  const { user, setUser, loading: authLoading } = useAuth()
   
   useEffect(() => {
-    if (user) navigate('/buyer')
-  }, [user, navigate])
-  const [email, setEmail]     = useState('')
-  const [password, setPassword] = useState('')
-  const [showPass, setShowPass] = useState(false)
-  const [errors, setErrors]   = useState({})
-  const [loading, setLoading] = useState(false)
-  const [gLoading, setGLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
-  const [apiError, setApiError] = useState('')
+    if (!authLoading && user) {
+      if (user.role === 'seller') navigate('/seller', { replace: true })
+      else if (user.role === 'admin') navigate('/admin', { replace: true })
+      else navigate('/buyer', { replace: true })
+    }
+  }, [user, authLoading, navigate])
+  const [email, setEmail]           = useState('')
+  const [password, setPassword]     = useState('')
+  const [showPass, setShowPass]     = useState(false)
+  const [errors, setErrors]         = useState({})
+  const [loading, setLoading]       = useState(false)
+  const [gLoading, setGLoading]     = useState(false)
+  const [success, setSuccess]       = useState(false)
+  const [apiError, setApiError]     = useState('')
 
   const validate = () => {
     const e = {}
@@ -59,7 +63,8 @@ export default function Login() {
       const data = await loginUser({ email, password })
       setUser(data.user)
       setSuccess(true)
-      setTimeout(() => navigate('/buyer'), 1500)
+      const target = data.user?.role === 'seller' ? '/seller' : data.user?.role === 'admin' ? '/admin' : '/buyer'
+      setTimeout(() => navigate(target, { replace: true }), 1000)
     } catch (err) {
       setApiError(err?.response?.data?.message || 'Invalid credentials. Please try again.')
     } finally {

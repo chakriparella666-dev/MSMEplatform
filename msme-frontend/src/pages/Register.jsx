@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { registerUser } from '../api/authApi'
@@ -6,7 +6,16 @@ import GoogleAuthBtn from '../components/GoogleAuthBtn'
 
 export default function Register() {
   const navigate = useNavigate()
-  const { setUser } = useAuth()
+  const { user, setUser, loading: authLoading } = useAuth()
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      if (user.role === 'seller') navigate('/seller', { replace: true })
+      else if (user.role === 'admin') navigate('/admin', { replace: true })
+      else navigate('/buyer', { replace: true })
+    }
+  }, [user, authLoading, navigate])
+
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -37,7 +46,7 @@ export default function Register() {
       const data = await registerUser({ name, email, password })
       setUser(data.user)
       setSuccess(true)
-      setTimeout(() => navigate('/dashboard'), 1500)
+      setTimeout(() => navigate('/buyer', { replace: true }), 1000)
     } catch (err) {
       setApiError(err?.response?.data?.message || 'Registration failed. Please try again.')
     } finally {

@@ -20,9 +20,18 @@ API.interceptors.request.use((config) => {
 API.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401 && !window.location.pathname.startsWith('/login')) {
+    if (error.response?.status === 401) {
       localStorage.removeItem('token');
-      window.location.href = '/login';
+      localStorage.removeItem('user');
+      localStorage.removeItem('display_name');
+      
+      const isPublicPath = ['/login', '/register', '/forgot-password', '/reset-password'].some(p =>
+        window.location.pathname.startsWith(p)
+      );
+      // Avoid infinite reload loop on /me check or auth pages
+      if (!isPublicPath && !error.config?.url?.includes('/me')) {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
@@ -39,6 +48,8 @@ export const getMe         = ()     => API.get('/me').then(r => saveToken(r.data
 export const updateProfile = (data) => API.put('/update-profile', data).then(r => saveToken(r.data))
 export const logoutUser    = ()     => {
   localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  localStorage.removeItem('display_name');
   return API.post('/logout').then(r => r.data);
 }
 export const pingAuth      = ()     => API.get('/ping').then(r => r.data)

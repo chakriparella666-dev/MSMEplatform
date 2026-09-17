@@ -19,9 +19,16 @@ API.interceptors.request.use((config) => {
 API.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401 && !window.location.pathname.startsWith('/login')) {
+    if (error.response?.status === 401) {
       localStorage.removeItem('token');
-      window.location.href = '/login';
+      localStorage.removeItem('user');
+      localStorage.removeItem('display_name');
+      const isPublicPath = ['/login', '/register', '/forgot-password', '/reset-password'].some(p =>
+        window.location.pathname.startsWith(p)
+      );
+      if (!isPublicPath) {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
@@ -32,4 +39,4 @@ export const getSellerProducts  = ()      => API.get('/products/seller/me').then
 export const addProduct         = (data)  => API.post('/products', data).then(r => r.data)
 export const updateProduct      = (id, data) => API.put(`/products/${id}`, data).then(r => r.data)
 export const deleteProduct      = (id)      => API.delete(`/products/${id}`).then(r => r.data)
-export const updateProfile      = (data)  => API.put('/auth/update-profile', data).then(r => r.data) // Added for profile updates
+export const updateProfile      = (data)  => API.put('/auth/update-profile', data).then(r => r.data)
