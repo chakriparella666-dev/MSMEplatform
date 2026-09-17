@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 3001,
+    port: 3000,
     host: true, // Listen on all addresses for Docker
     allowedHosts: 'all',
     proxy: {
