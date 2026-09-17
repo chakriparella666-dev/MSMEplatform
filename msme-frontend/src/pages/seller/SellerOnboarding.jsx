@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import axios from 'axios'
-import { FaBuilding, FaIdCard, FaCheckCircle } from 'react-icons/fa'
+import { FaBuilding, FaIdCard, FaCheckCircle, FaArrowLeft, FaShoppingBag } from 'react-icons/fa'
 
 export default function SellerOnboarding({ onComplete }) {
+  const navigate = useNavigate()
   const { user, setUser } = useAuth()
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
@@ -66,6 +68,29 @@ export default function SellerOnboarding({ onComplete }) {
 
   return (
     <div className="animate-fade-in" style={{ maxWidth: '600px', margin: '40px auto', padding: '40px' }}>
+      <div style={{ marginBottom: '16px' }}>
+        <button
+          type="button"
+          onClick={() => navigate('/buyer')}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            color: '#4B5563',
+            fontSize: '0.85rem',
+            fontWeight: 700,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '8px 0'
+          }}
+          onMouseEnter={e => e.currentTarget.style.color = '#000'}
+          onMouseLeave={e => e.currentTarget.style.color = '#4B5563'}
+        >
+          <FaArrowLeft size={12} /> Back to Buyer Dashboard
+        </button>
+      </div>
+
       <div className="glass-card" style={{ padding: '40px' }}>
         <div style={{ textAlign: 'center', marginBottom: '24px' }}>
           <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(37, 99, 235, 0.1)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
@@ -129,7 +154,6 @@ export default function SellerOnboarding({ onComplete }) {
               onChange={(e) => setFormData({...formData, panCardName: e.target.value})}
             />
           </div>
-
 
           <div style={{ marginTop: '32px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <button 

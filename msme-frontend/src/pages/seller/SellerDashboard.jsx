@@ -10,7 +10,8 @@ import {
   FaBox as InventoryIcon, 
   FaClipboardList as OrdersIcon, 
   FaUserCog as AccountIcon,
-  FaPlus, FaTrashAlt, FaStore, FaSignOutAlt, FaMapMarkerAlt, FaPhone, FaSave, FaEdit, FaCheck, FaTimes, FaImage, FaChartLine
+  FaPlus, FaTrashAlt, FaStore, FaSignOutAlt, FaMapMarkerAlt, FaPhone, FaSave, FaEdit, FaCheck, FaTimes, FaImage, FaChartLine,
+  FaShoppingBag, FaArrowLeft
 } from 'react-icons/fa'
 import { ResponsiveContainer, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell } from 'recharts'
 import { FaRobot, FaLightbulb, FaMagic, FaGavel, FaMoneyCheckAlt, FaTruck, FaExternalLinkAlt, FaSearch, FaSpinner, FaSync, FaGlobe } from 'react-icons/fa'
@@ -885,6 +886,7 @@ function AnalyticsTab({ forecastData, globalRecommendations, onRefresh }) {
 }
 
 function SellerSidebar({ activeTab, setActiveTab, logout }) {
+  const navigate = useNavigate()
   const tabs = [
     { id: 'overview',   icon: <DashboardIcon />, label: 'Market Overview' },
     { id: 'inventory',  icon: <InventoryIcon />, label: 'Boutique Inventory' },
@@ -894,8 +896,6 @@ function SellerSidebar({ activeTab, setActiveTab, logout }) {
     { id: 'finance',    icon: <FaMoneyCheckAlt />, label: 'Finance & Loans' },
     { id: 'schemes',    icon: <FaGavel />,        label: 'Govt Schemes' },
     { id: 'account',    icon: <AccountIcon />,   label: 'Hub Settings' },
-
-
   ]
   return (
     <div className="sidebar" style={{ background: 'white', borderRight: '1px solid var(--border-soft)', padding: '32px 0', height: '100vh', position: 'sticky', top: 0, display: 'flex', flexDirection: 'column', overflowY: 'auto', flexShrink: 0 }}>
@@ -930,9 +930,45 @@ function SellerSidebar({ activeTab, setActiveTab, logout }) {
           </div>
         ))}
       </nav>
+
+      <div style={{ padding: '0 24px', marginTop: 'auto', marginBottom: '12px' }}>
+        <button
+          onClick={() => navigate('/buyer')}
+          style={{
+            width: '100%',
+            padding: '12px 16px',
+            background: 'linear-gradient(135deg, #1E293B, #0F172A)',
+            color: '#FFFFFF',
+            border: '1px solid #334155',
+            borderRadius: '12px',
+            fontSize: '0.85rem',
+            fontWeight: 700,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '10px',
+            transition: 'all 0.2s ease',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.background = '#000000'
+            e.currentTarget.style.transform = 'translateY(-1px)'
+            e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.15)'
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.background = 'linear-gradient(135deg, #1E293B, #0F172A)'
+            e.currentTarget.style.transform = 'translateY(0)'
+            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'
+          }}
+        >
+          <FaShoppingBag size={14} color="#60A5FA" /> Switch to Buyer Hub
+        </button>
+      </div>
+
       <div 
         className="sidebar-link" 
-        style={{ color: '#ef4444', marginTop: 'auto', padding: '18px 40px', fontWeight: 700, fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '12px', opacity: 0.8 }} 
+        style={{ color: '#ef4444', padding: '14px 32px', fontWeight: 700, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '12px', opacity: 0.8 }} 
         onMouseEnter={e => e.currentTarget.style.opacity = 1}
         onMouseLeave={e => e.currentTarget.style.opacity = 0.8}
         onClick={logout}
