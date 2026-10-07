@@ -1,0 +1,32 @@
+{
+  "feature_cols": [
+    "category_code",
+    "price",
+    "month",
+    "week_of_year",
+    "is_festive_season",
+    "discount_percent",
+    "past_4w_avg_sales",
+    "page_views",
+    "stock_level"
+  ],
+  "cat_map": {
+    "Textiles": 0,
+    "Handicrafts": 1,
+    "Food Processing": 2,
+    "Leather Goods": 3,
+    "Wooden Furniture": 4,
+    "Electronics": 5
+  },
+  "categories": [
+    "Textiles",
+    "Handicrafts",
+    "Food Processing",
+    "Leather Goods",
+    "Wooden Furniture",
+    "Electronics"
+  ],
+  "mae": 8.07,
+  "forecast_error": 7.1,
+  "accuracy": 92.9
+}

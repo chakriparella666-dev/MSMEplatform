@@ -1,5 +1,6 @@
 const Order = require('../models/Order');
 const Product = require('../models/Product');
+const { runXGBoostForecast } = require('../services/xgboostService');
 
 // @desc    Get orders for a seller
 // @route   GET /api/orders/seller
@@ -125,7 +126,7 @@ exports.getSellerForecast = async (req, res) => {
 
     const products = await Product.find({ seller: req.user.id });
 
-    // Step 1: Demand Forecasting & Optimization Logic
+    // Step 1: Real XGBoost Demand Forecasting & Optimization Logic
     const forecastAnalytics = products.map(product => {
       const productSales = [];
       const prodIdStr = product._id.toString();
@@ -139,58 +140,59 @@ exports.getSellerForecast = async (req, res) => {
         });
       });
 
-      // Calculate historical metrics
+      // Calculate historical sales
       const totalSold = productSales.reduce((acc, s) => acc + s.qty, 0);
       const dateNow = new Date();
       const last30Days = new Date(dateNow.getTime() - (30 * 24 * 60 * 60 * 1000));
       const recentSales = productSales.filter(s => s.date >= last30Days).reduce((acc, s) => acc + s.qty, 0);
 
-      // 1. Demand Forecasting (7, 15, 30 days)
-      const avgDailyDemand = totalSold / Math.max(30, (dateNow - (product.createdAt || last30Days)) / (1000 * 60 * 60 * 24));
-      const trendMultiplier = recentSales > (totalSold / 2) ? 1.4 : 1.0; // Simulated XGBoost trend boost
+      // Invoke XGBoost python model
+      const xgbResult = runXGBoostForecast({
+        category: product.category || 'Textiles',
+        price: product.price || 500,
+        stock: product.totalStock || 0,
+        pastSales: totalSold || 10,
+        month: dateNow.getMonth() + 1
+      });
 
-      const forecast = [
-        { period: '7 Days', quantity: Math.ceil(avgDailyDemand * 7 * trendMultiplier) },
-        { period: '15 Days', quantity: Math.ceil(avgDailyDemand * 15 * trendMultiplier) },
-        { period: '30 Days', quantity: Math.ceil(avgDailyDemand * 30 * trendMultiplier) }
-      ];
+      const predictedDemand30 = xgbResult.predicted30DayDemand;
+      const recommendedStock = xgbResult.recommendedStock;
 
-      const predictedDemand30 = forecast[2].quantity;
-      
-      // 2. Inventory Optimization Alerts
       let inventoryStatus = "optimal";
-      let recommendedAction = "Maintain current stock levels.";
-      let recommendedStock = 0;
+      if (xgbResult.alertType === "UNDERSTOCK_WARNING") inventoryStatus = "understock";
+      if (xgbResult.alertType === "OVERSTOCK_WARNING") inventoryStatus = "overstock";
 
-      if (product.totalStock < predictedDemand30) {
-        inventoryStatus = "understock";
-        recommendedStock = Math.ceil(predictedDemand30 * 1.5); // 50% Safety Stock
-        recommendedAction = `Increase stock for ${product.name} by ${recommendedStock - product.totalStock} units.`;
-      } else if (product.totalStock > predictedDemand30 * 3) {
-        inventoryStatus = "overstock";
-        recommendedAction = `Reduce stock for ${product.name}. High holding cost detected.`;
-      }
-
-      // 3. Smart Insights
-      const suggestions = [];
-      if (recentSales > 10) suggestions.push("Fast-moving item detected. Consider a 5% price premium.");
-      if (totalSold === 0) suggestions.push("Low turnover item. Try a 10% 'New Listing' discount.");
-      if (inventoryStatus === "understock") suggestions.push("Urgent: Stockout risk in 15 days.");
+      const suggestions = [
+        `XGBoost Forecast Error: ${xgbResult.forecastError}% (Accuracy: ${xgbResult.accuracyScore}%)`,
+        `Recommended 30-Day Inventory: ${recommendedStock} units.`
+      ];
+      if (recentSales > 5) suggestions.push("High consumer interest. Consider maintaining safety stock.");
 
       return {
         product_id: product._id,
         name: product.name,
+        category: product.category,
         current_stock: product.totalStock,
         total_sold: totalSold,
         predicted_demand: predictedDemand30,
-        forecast: forecast,
+        recommended_stock: recommendedStock,
+        accuracy_score: xgbResult.accuracyScore,
+        forecast_error: xgbResult.forecastError,
+        alert_message: xgbResult.alertMessage,
+        chart_data: xgbResult.chartData,
+        forecast: [
+          { period: 'Week 1', quantity: xgbResult.weeklyForecast[0] },
+          { period: 'Week 2', quantity: xgbResult.weeklyForecast[1] },
+          { period: 'Week 3', quantity: xgbResult.weeklyForecast[2] },
+          { period: 'Week 4', quantity: xgbResult.weeklyForecast[3] }
+        ],
         inventory_alert: {
           status: inventoryStatus,
           recommended_stock: recommendedStock,
-          action: recommendedAction
+          action: xgbResult.alertMessage
         },
         insights: suggestions,
-        trend: recentSales > 0 ? "Growing Demand" : "Market Testing"
+        trend: recentSales > 0 ? "Growing Demand (XGBoost)" : "Stable Demand"
       };
     });
 
