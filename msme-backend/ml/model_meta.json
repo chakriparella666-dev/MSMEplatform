@@ -1,4 +1,5 @@
 {
+  "dataset_source": "Kaggle Superstore Retail Sales Dataset (train.csv)",
   "feature_cols": [
     "category_code",
     "price",
@@ -11,22 +12,36 @@
     "stock_level"
   ],
   "cat_map": {
-    "Textiles": 0,
+    "Furniture": 0,
+    "Wooden Furniture": 0,
+    "Furnishings": 0,
+    "Chairs": 0,
+    "Tables": 0,
+    "Office Supplies": 1,
+    "Textiles": 1,
     "Handicrafts": 1,
-    "Food Processing": 2,
-    "Leather Goods": 3,
-    "Wooden Furniture": 4,
-    "Electronics": 5
+    "Leather Goods": 1,
+    "Paper": 1,
+    "Art": 1,
+    "Food Processing": 1,
+    "General": 1,
+    "Technology": 2,
+    "Electronics": 2,
+    "Phones": 2,
+    "Accessories": 2,
+    "Appliances": 2
   },
   "categories": [
-    "Textiles",
-    "Handicrafts",
-    "Food Processing",
-    "Leather Goods",
-    "Wooden Furniture",
-    "Electronics"
+    "Furniture",
+    "Office Supplies",
+    "Technology"
   ],
-  "mae": 8.07,
-  "forecast_error": 7.1,
-  "accuracy": 92.9
+  "mae": 2.83,
+  "rmse": 5.34,
+  "forecast_error": 6.13,
+  "accuracy": 93.87,
+  "precision": 75.92,
+  "recall": 88.67,
+  "f1_score": 81.80,
+  "r2_score": 0.9650
 }

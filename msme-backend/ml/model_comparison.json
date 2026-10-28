@@ -1,0 +1,53 @@
+{
+  "dataset": "Kaggle Superstore Retail Sales Dataset (train.csv)",
+  "total_records": 2938,
+  "train_samples": 2350,
+  "test_samples": 588,
+  "features": [
+    "category_code",
+    "price",
+    "month",
+    "week_of_year",
+    "is_festive_season",
+    "discount_percent",
+    "past_4w_avg_sales",
+    "page_views",
+    "stock_level"
+  ],
+  "models": {
+    "xgboost": {
+      "name": "XGBoost Regressor",
+      "mae": 2.83,
+      "rmse": 5.34,
+      "mape": 0.0613,
+      "forecast_error_percent": 6.13,
+      "accuracy_score": 93.87,
+      "r2_score": 0.965,
+      "precision": 75.92,
+      "recall": 88.67,
+      "f1_score": 81.8,
+      "training_time_sec": 0.451,
+      "inference_latency_ms": 0.01
+    },
+    "random_forest": {
+      "name": "Random Forest Regressor",
+      "mae": 2.57,
+      "rmse": 5.18,
+      "mape": 0.0497,
+      "forecast_error_percent": 4.97,
+      "accuracy_score": 95.03,
+      "r2_score": 0.9671,
+      "precision": 81.88,
+      "recall": 88.28,
+      "f1_score": 84.96,
+      "training_time_sec": 0.33,
+      "inference_latency_ms": 0.111
+    }
+  },
+  "verdict": {
+    "best_accuracy": "Random Forest",
+    "lowest_rmse": "Random Forest",
+    "best_f1_score": "Random Forest",
+    "fastest_training": "Random Forest"
+  }
+}
